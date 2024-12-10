@@ -4,7 +4,7 @@ Publish: 2024-12-10
 
 Author: Leonard Christopher Limanjaya
 
-Medium: (link)[https://leonardcl.medium.com/mastering-reinforcement-learning-how-machines-learn-from-rewards-and-mistakes-dcbaa0fa3e5c]
+Medium: [link](https://leonardcl.medium.com/mastering-reinforcement-learning-how-machines-learn-from-rewards-and-mistakes-dcbaa0fa3e5c)
 
 ---
 ## What is Reinforcement Learning
