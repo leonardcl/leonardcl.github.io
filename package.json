@@ -2,7 +2,7 @@
   "name": "personal-website",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://github.com/leonardcl",
+  "homepage": "https://leonardcl.github.io/leonardcl.github.io",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",

@@ -4,6 +4,8 @@ Publish: 2024-12-10
 
 Author: Leonard Christopher Limanjaya
 
+Medium: [link](https://leonardcl.medium.com/mastering-reinforcement-learning-how-machines-learn-from-rewards-and-mistakes-dcbaa0fa3e5c)
+
 ---
 ## What is Reinforcement Learning
 Have you heard about Artificial Intelligence and Machine Learning? If so, you’re on the right track. Machine Learning has three major subfields:
@@ -106,3 +108,5 @@ Maybe you have this kind of question:
 > Why does the agent aim to maximize the expected return?
 
 The agent aims to maximize the expected return because this approach ensures the best long-term results. The expected return considers both immediate and future rewards, guiding the agent to make decisions that not only yield immediate gains but also enhance long-term benefits. By focusing on maximizing the expected return, the agent balances short-term rewards with future opportunities, ultimately optimizing its overall performance. This strategy helps the agent to consistently make decisions that lead to the highest total reward over time, improving its effectiveness and success in the environment.
+
+The agent's focus on maximizing the expected return exemplifies the balance between short-term gains and long-term success - an approach that can inspire us in our own learning journeys. Just as the agent continuously adapts and refines its strategy, we too can strive to explore deeper, learn more, and improve over time. If this post has sparked your curiosity, I encourage you to dive deeper and share your thoughts or questions. Together, let's continue this journey of discovery.
