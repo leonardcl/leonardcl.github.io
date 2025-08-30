@@ -1,0 +1,412 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global background color to prevent white flashes */
+html, body {
+    background-color: #030712 !important; /* gray-950 - very dark grey */
+    margin: 0;
+    padding: 0;
+}
+
+/* Smooth scrolling for the entire page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom animations for enhanced tag effects */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* Scroll-triggered animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation classes */
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+    animation: glow 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text animation for motto */
+@keyframes gradient-x {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease infinite;
+}
+
+/* Code editor typing animation */
+@keyframes typing-line {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(1px);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateY(-2px);
+        filter: blur(0.3px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+        filter: blur(0px);
+    }
+}
+
+@keyframes float-code {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-8px) rotate(5deg);
+        opacity: 0.6;
+    }
+}
+
+@keyframes float-code-delayed {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateY(-6px) rotate(-3deg);
+        opacity: 0.6;
+    }
+}
+
+.typing-line {
+    animation: typing-line 1s ease-out forwards;
+    opacity: 0;
+    margin-bottom: 0.5rem;
+    animation-fill-mode: forwards;
+}
+
+/* Loop the entire typing story */
+.typing-story {
+    animation: typing-loop 8s linear infinite;
+}
+
+@keyframes typing-loop {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Simple line-by-line fade-in animation */
+.typing-simple {
+    position: relative;
+    min-height: 1.2em;
+    opacity: 0;
+    animation: fade-in-line 0.5s ease-out forwards;
+}
+
+/* Sequential line timing - faster */
+.typing-simple:nth-child(1) { animation-delay: 0s; }
+.typing-simple:nth-child(2) { animation-delay: 0.8s; }
+.typing-simple:nth-child(3) { animation-delay: 1.6s; }
+.typing-simple:nth-child(4) { animation-delay: 2.4s; }
+.typing-simple:nth-child(5) { animation-delay: 3.2s; }
+.typing-simple:nth-child(6) { animation-delay: 4s; }
+.typing-simple:nth-child(7) { animation-delay: 4.8s; }
+
+@keyframes fade-in-line {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-float-code {
+    animation: float-code 4s ease-in-out infinite;
+}
+
+.animate-float-code-delayed {
+    animation: float-code-delayed 4s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+/* Publication section animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Smooth transitions for publication sections */
+.publication-section {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.publication-section.show {
+    max-height: 24rem;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.publication-section.hide {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-1rem);
+}
+
+/* Scroll animation classes */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-on-scroll.animate-fade-in-up {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.animate-on-scroll.animate-fade-in-left {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.animate-on-scroll.animate-fade-in-right {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.animate-on-scroll.animate-scale-in {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.animate-on-scroll.animate-slide-in-bottom {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Staggered animation delays */
+.animate-delay-100 { transition-delay: 0.1s; }
+.animate-delay-200 { transition-delay: 0.2s; }
+.animate-delay-300 { transition-delay: 0.3s; }
+.animate-delay-400 { transition-delay: 0.4s; }
+.animate-delay-500 { transition-delay: 0.5s; }
+
+/* Enhanced hover effects for interactive elements */
+.hover-lift {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+.hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 10px 25px rgba(6, 182, 212, 0.15);
+}
+
+/* Page Transition Animations */
+@keyframes pageSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pageSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.page-transition-enter {
+    animation: pageFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.page-transition-slide-up {
+    animation: pageSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.page-transition-slide-down {
+    animation: pageSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Smooth section transitions */
+.section-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
+}
+
+.section-transition.fade-out {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+}
+
+.section-transition.fade-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Enhanced scroll behavior */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Account for fixed navbar */
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #06b6d4, #3b82f6, #8b5cf6);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #0891b2, #2563eb, #7c3aed);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #06b6d4 #1f2937;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.markdown > * {
+    all: revert;
+}
