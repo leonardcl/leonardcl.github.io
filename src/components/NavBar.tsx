@@ -85,7 +85,7 @@ const NavBar = () => {
     
 
   return (
-    <div className="flex justify-between items-center w-full z-[200] h-20 px-4 text-white bg-black md:px-20 fixed stop-0">
+    <div className="flex justify-between items-center w-full z-[200] h-20 px-4 text-white bg-black md:px-20 fixed top-0">
         <div className="text-2xl font-bold font-quicksand">
             <button 
                 onClick={() => {

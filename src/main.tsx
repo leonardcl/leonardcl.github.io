@@ -7,6 +7,7 @@ import Blog from './Blog.tsx';
 import NotFoundPage from './NotFoundPage.tsx';
 import RlFundamentalConcept1 from './components/markdown_blogs/1-rl-fundamentalconcept.tsx';
 import Blessed from './components/Blessed.tsx';
+import GradientDescentTool from './components/GradientDescentTool.tsx';
 import './index.css';
 
 const router = createHashRouter([
@@ -26,6 +27,10 @@ const router = createHashRouter([
   {
     path: "/blessed",
     element: <Blessed />,
+  },
+  {
+    path: "/gradient-descent",
+    element: <GradientDescentTool />,
   },
 ]);
 
