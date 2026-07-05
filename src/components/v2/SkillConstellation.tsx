@@ -29,6 +29,12 @@ const nodes: Node3D[] = [
   { id: "ts", label: "TypeScript", x: -160, y: 130, z: -40 },
   { id: "iot", label: "IoT · Embedded", x: 20, y: 165, z: -90 },
   { id: "ros", label: "ROS2", x: 150, y: 130, z: 60 },
+  { id: "pytorch", label: "PyTorch", x: -60, y: -160, z: 100 },
+  { id: "pomdp", label: "POMDP", x: -190, y: -50, z: -110 },
+  { id: "gazebo", label: "Gazebo", x: 230, y: -60, z: -130 },
+  { id: "react", label: "React", x: -230, y: 90, z: 40 },
+  { id: "cpp", label: "C · C++", x: 90, y: 230, z: 20 },
+  { id: "docker", label: "Docker", x: -40, y: 90, z: -170 },
 ].map((n) => ({ ...n, x: n.x * SPREAD, y: n.y * SPREAD, z: n.z * SPREAD }));
 
 const edges: [string, string][] = [
@@ -44,6 +50,16 @@ const edges: [string, string][] = [
   ["python", "iot"],
   ["iot", "ros"],
   ["robotics", "llm"],
+  ["pytorch", "ml"],
+  ["pytorch", "rl"],
+  ["pomdp", "rl"],
+  ["gazebo", "robotics"],
+  ["gazebo", "ros"],
+  ["react", "ts"],
+  ["cpp", "iot"],
+  ["cpp", "robotics"],
+  ["docker", "python"],
+  ["docker", "llm"],
 ];
 
 const INK = "#191918";
@@ -278,9 +294,6 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
         })}
       </svg>
 
-      <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-inkmuted/70">
-        drag to spin
-      </p>
     </div>
   );
 };

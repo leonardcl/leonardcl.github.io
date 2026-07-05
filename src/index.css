@@ -28,17 +28,27 @@ body::after {
     color: #FAF9F5;
 }
 
-/* Redesign: link underline style */
+/* Redesign: link underline style — pink→blue gradient sweeps over a faint hairline */
 .u-link {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
-    text-decoration-color: #C9C7BD;
-    transition: text-decoration-color 0.25s ease, color 0.25s ease;
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    padding-bottom: 4px;
+    background-image:
+        linear-gradient(90deg, #D6336C, #3538CD),
+        linear-gradient(90deg, #C9C7BD, #C9C7BD);
+    background-size: 0% 2px, 100% 1px;
+    background-position: 0 100%, 0 100%;
+    background-repeat: no-repeat;
+    transition:
+        background-size 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        color 0.4s ease,
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .u-link:hover {
     color: #3538CD;
-    text-decoration-color: #3538CD;
+    background-size: 100% 2px, 100% 1px;
+    transform: translateY(-2px);
 }
 
 /* Scroll reveal (new) */
