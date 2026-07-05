@@ -147,34 +147,59 @@ const HandGlobe = () => {
       </svg>
 
       {/* ── The hand — real artwork first; pixels are just an effect ── */}
-      <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[46%]">
-        {/* realistic hand, duotone-tinted into the site palette */}
-        <span className="hand-emoji absolute left-1/2 bottom-0 -translate-x-[46%] leading-none">
+      <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[52%]">
+        {/* realistic hand, duotone-tinted, angled in from the right */}
+        <span
+          className="hand-emoji absolute right-[-4%] bottom-[2%] leading-none"
+          style={{ transform: "rotate(-38deg)" }}
+        >
           🫴
         </span>
 
-        {/* digitization: pixels dissolve off the hand and rise toward the globe */}
+        {/* digitization: pixels dissolve off the hand; some become numbers */}
         {[
-          { left: "38%", delay: 0, size: 7, tone: "#3538CD" },
-          { left: "46%", delay: 1.1, size: 5, tone: "#D6336C" },
-          { left: "52%", delay: 2.3, size: 8, tone: "#3538CD" },
-          { left: "42%", delay: 3.1, size: 4, tone: "#3538CD" },
-          { left: "58%", delay: 3.9, size: 6, tone: "#D6336C" },
-          { left: "35%", delay: 4.8, size: 5, tone: "#3538CD" },
-          { left: "49%", delay: 5.6, size: 7, tone: "#3538CD" },
-          { left: "55%", delay: 6.4, size: 4, tone: "#D6336C" },
+          { left: "40%", delay: 0, size: 7, tone: "#3538CD" },
+          { left: "48%", delay: 1.1, size: 5, tone: "#D6336C", digit: "1" },
+          { left: "55%", delay: 2.3, size: 8, tone: "#3538CD" },
+          { left: "44%", delay: 3.1, size: 5, tone: "#3538CD", digit: "0" },
+          { left: "61%", delay: 3.9, size: 6, tone: "#D6336C" },
+          { left: "37%", delay: 4.8, size: 5, tone: "#3538CD", digit: "7" },
+          { left: "52%", delay: 5.6, size: 7, tone: "#3538CD", digit: "0" },
+          { left: "58%", delay: 6.4, size: 4, tone: "#D6336C" },
+          { left: "47%", delay: 7.3, size: 6, tone: "#3538CD", digit: "1" },
         ].map((px, i) => (
           <span
             key={i}
-            className="pixel-rise absolute top-[18%]"
+            className="pixel-rise absolute top-[16%]"
             style={{
               left: px.left,
-              width: px.size,
-              height: px.size,
-              backgroundColor: px.tone,
+              width: px.size + 4,
+              height: px.size + 4,
               animationDelay: `${px.delay}s`,
             }}
-          />
+          >
+            {px.digit ? (
+              <>
+                {/* square dissolves… */}
+                <span
+                  className="morph-square absolute inset-0 m-auto"
+                  style={{ width: px.size, height: px.size, backgroundColor: px.tone }}
+                />
+                {/* …and a digit takes its place */}
+                <span
+                  className="morph-digit absolute inset-0 flex items-center justify-center font-mono font-semibold"
+                  style={{ color: px.tone, fontSize: px.size + 5 }}
+                >
+                  {px.digit}
+                </span>
+              </>
+            ) : (
+              <span
+                className="absolute inset-0 m-auto"
+                style={{ width: px.size, height: px.size, backgroundColor: px.tone }}
+              />
+            )}
+          </span>
         ))}
       </div>
     </div>

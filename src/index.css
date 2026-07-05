@@ -222,16 +222,37 @@ body::after {
 /* ── Soul: realistic hand + pixel-dissolve effect (footer) ── */
 .hand-emoji {
     font-size: 150px;
-    /* duotone: real hand artwork tinted into the site's ink/blue palette */
-    filter: grayscale(1) sepia(1) hue-rotate(200deg) saturate(2.2) brightness(0.72) contrast(1.15);
+    /* duotone into the site palette: deep ink-ultramarine, print-illustration feel.
+       Slightly lifted brightness + soft contrast so it sits on the bone paper
+       like the section icons do — graphic, not photographic. */
+    filter: grayscale(1) sepia(1) hue-rotate(205deg) saturate(1.9) brightness(0.78) contrast(1.08) opacity(0.92);
 }
 @keyframes pixelRise {
-    0% { opacity: 0; transform: translateY(6px) rotate(0deg); }
+    0% { opacity: 0; transform: translateY(6px); }
     18% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-88px) rotate(90deg); }
+    100% { opacity: 0; transform: translateY(-92px); }
 }
 .pixel-rise {
     animation: pixelRise 5.5s ease-out infinite;
+    opacity: 0;
+}
+/* mid-flight morph: the square dissolves, a digit takes its place */
+@keyframes morphHide {
+    0%, 46% { opacity: 1; }
+    54%, 100% { opacity: 0; }
+}
+@keyframes morphShow {
+    0%, 46% { opacity: 0; }
+    54%, 100% { opacity: 1; }
+}
+.morph-square {
+    animation: morphHide 5.5s ease-out infinite;
+    animation-delay: inherit;
+}
+.morph-digit {
+    animation: morphShow 5.5s ease-out infinite;
+    animation-delay: inherit;
+    line-height: 1;
 }
 
 /* ── Soul: hand & globe (footer) ── */
