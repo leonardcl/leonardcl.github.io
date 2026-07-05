@@ -236,6 +236,13 @@ const HandGlobe = () => {
           >
             🫴
           </span>
+          {/* glitch layers — blush & blue slices that jump for a split second */}
+          <span className="hand-emoji hand-glitch-a absolute inset-0 leading-none" aria-hidden>
+            🫴
+          </span>
+          <span className="hand-emoji hand-glitch-b absolute inset-0 leading-none" aria-hidden>
+            🫴
+          </span>
           {/* sparse binary bits pinned to the hand's own pixels */}
           {handBits.map((bit, i) =>
             bit.ch ? (

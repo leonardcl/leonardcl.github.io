@@ -236,6 +236,33 @@ body::after {
     animation: pixelRise 5.5s ease-out infinite;
     opacity: 0;
 }
+/* cyber glitch: two tinted copies flash in as horizontal slices, offset sideways */
+@keyframes glitchA {
+    0%, 86%, 100% { opacity: 0; transform: scaleX(-1) translate(0, 0); clip-path: inset(0 0 100% 0); }
+    87% { opacity: 0.65; transform: scaleX(-1) translate(5px, -2px); clip-path: inset(10% 0 58% 0); }
+    89% { opacity: 0.65; transform: scaleX(-1) translate(-4px, 1px); clip-path: inset(48% 0 30% 0); }
+    91% { opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+@keyframes glitchB {
+    0%, 87%, 100% { opacity: 0; transform: scaleX(-1) translate(0, 0); clip-path: inset(100% 0 0 0); }
+    88% { opacity: 0.55; transform: scaleX(-1) translate(-6px, 2px); clip-path: inset(64% 0 12% 0); }
+    90% { opacity: 0.55; transform: scaleX(-1) translate(4px, -1px); clip-path: inset(22% 0 60% 0); }
+    92% { opacity: 0; clip-path: inset(100% 0 0 0); }
+}
+.hand-glitch-a {
+    animation: glitchA 5.2s steps(1, end) infinite;
+    /* blush-tinted copy */
+    filter: grayscale(1) sepia(1) hue-rotate(320deg) saturate(3) brightness(0.85) contrast(1.1);
+    opacity: 0;
+}
+.hand-glitch-b {
+    animation: glitchB 5.2s steps(1, end) infinite;
+    animation-delay: -2.6s;
+    /* electric-blue copy */
+    filter: grayscale(1) sepia(1) hue-rotate(200deg) saturate(4) brightness(0.9) contrast(1.15);
+    opacity: 0;
+}
+
 /* binary bits shimmering on the hand's surface */
 @keyframes bitFlicker {
     0%, 100% { opacity: 0.1; }
