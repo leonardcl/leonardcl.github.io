@@ -31,7 +31,7 @@ const FooterV2 = () => (
         </a>
 
         <p className="mt-8 max-w-xl text-inkmuted leading-relaxed">
-          Have a product to ship? That's what my studio is for —{" "}
+          Looking for a mentor? Find me at{" "}
           <a
             href="https://projekinaja.com"
             target="_blank"
@@ -39,8 +39,8 @@ const FooterV2 = () => (
             className="u-link font-medium text-ink"
           >
             ProjekinAja
-          </a>{" "}
-          and{" "}
+          </a>
+          . Have a project to ship?{" "}
           <a
             href="https://studio.projekinaja.com"
             target="_blank"
@@ -48,8 +48,8 @@ const FooterV2 = () => (
             className="u-link font-medium text-ink"
           >
             ProjekinAja Studio
-          </a>
-          .
+          </a>{" "}
+          builds it with you.
         </p>
       </Reveal>
 
