@@ -1,17 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 
 const links = [
-  { n: "01", label: "now", to: "/#now" },
-  { n: "02", label: "work", to: "/#work" },
-  { n: "03", label: "experience", to: "/#experience" },
-  { n: "04", label: "publications", to: "/#publications" },
-  { n: "05", label: "writing", to: "/#writing" },
+  { n: "01", label: "work", to: "/#work" },
+  { n: "02", label: "experience", to: "/#experience" },
+  { n: "03", label: "publications", to: "/#publications" },
+  { n: "04", label: "blog", to: "/blog" },
 ];
 
 const Nav = () => {
   const [open, setOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // Thin reading-progress line under the nav
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      setProgress(max > 0 ? (doc.scrollTop / max) * 100 : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-bone/85 backdrop-blur-md border-b border-line">
@@ -53,6 +65,12 @@ const Nav = () => {
           {open ? "close" : "menu"}
         </button>
       </nav>
+
+      {/* Scroll progress */}
+      <div
+        className="h-[2px] bg-accent transition-[width] duration-150 ease-out"
+        style={{ width: `${progress}%` }}
+      />
 
       {/* Mobile menu */}
       {open && (

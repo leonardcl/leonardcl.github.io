@@ -6,7 +6,7 @@ const PublicationsList = () => {
   let lastYear = "";
   return (
     <section id="publications" className="max-w-site mx-auto px-6 sm:px-10 py-24">
-      <SectionHeader index="04" title="Publications" hint="peer-reviewed" />
+      <SectionHeader index="03" title="Publications" hint="peer-reviewed" />
       <div className="border-t border-line">
         {publications.map((pub) => {
           const showYear = pub.year !== lastYear;

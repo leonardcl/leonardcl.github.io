@@ -1,12 +1,16 @@
+import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 import Reveal from "./Reveal";
 
 const FooterV2 = () => (
-  <footer id="contact" className="border-t border-line mt-12">
-    <div className="max-w-site mx-auto px-6 sm:px-10 py-24">
+  <footer id="contact" className="relative border-t border-line mt-12 overflow-hidden">
+    {/* Quiet ambient color in the corner */}
+    <div className="blob w-[360px] h-[360px] -bottom-40 -right-24 bg-accent/10" />
+
+    <div className="relative max-w-site mx-auto px-6 sm:px-10 py-24">
       <Reveal>
         <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">
-          07 — contact
+          contact
         </p>
         <h2 className="mt-6 font-display text-4xl sm:text-6xl text-ink font-medium leading-tight">
           Let's build
@@ -21,31 +25,68 @@ const FooterV2 = () => (
         </a>
       </Reveal>
 
-      <div className="mt-20 pt-6 border-t border-line flex flex-wrap items-center gap-x-8 gap-y-3">
-        <span className="font-display text-ink font-semibold">
-          leonard<span className="text-accent">cl</span>
-        </span>
-        <a
-          href={site.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-mono text-xs text-inkmuted hover:text-accent transition-colors"
-        >
-          github
-        </a>
-        <a
-          href={site.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-mono text-xs text-inkmuted hover:text-accent transition-colors"
-        >
-          linkedin
-        </a>
-        <span className="ml-auto font-mono text-[11px] text-inkmuted">
-          © {new Date().getFullYear()} — {site.motto[0].toLowerCase()}{" "}
-          {site.motto[1].replace(".", "").toLowerCase()}
-        </span>
+      <div className="mt-20 pt-6 border-t border-line grid sm:grid-cols-3 gap-8">
+        <div>
+          <span className="font-display text-ink font-semibold">
+            leonard<span className="text-accent">cl</span>
+          </span>
+          <p className="mt-2 font-mono text-[11px] text-inkmuted leading-relaxed">
+            {site.motto[0].toLowerCase()}
+            <br />
+            {site.motto[1].replace(".", "").toLowerCase()}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
+            elsewhere
+          </span>
+          <a
+            href={site.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            github ↗
+          </a>
+          <a
+            href={site.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            linkedin ↗
+          </a>
+          <Link
+            to="/blog"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            blog →
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
+            playground
+          </span>
+          <Link
+            to="/gradient-descent"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            gradient descent tool →
+          </Link>
+          <Link
+            to="/blessed"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            blessed →
+          </Link>
+        </div>
       </div>
+
+      <p className="mt-12 font-mono text-[11px] text-inkmuted">
+        © {new Date().getFullYear()} Leonard Christopher
+      </p>
     </div>
   </footer>
 );
