@@ -24,6 +24,32 @@ export const site = {
   ],
 };
 
+// ── About — short bio + the four domains. ──
+export const about = {
+  bio: [
+    "I live where robotics, machine learning, and AI meet — researching reinforcement learning, shipping AI products, and building robots that work outside the lab.",
+    "I learn by building. Every project, paper, and late-night experiment feeds the same loop: understand a system deeply, then push it somewhere it hasn't been.",
+  ],
+  expertise: [
+    {
+      title: "Software Development",
+      note: "Python, C/C++, JavaScript & TypeScript — functional and OOP, from scripts to products.",
+    },
+    {
+      title: "Artificial Intelligence",
+      note: "Computer vision, reinforcement learning, LLMs, RAG, and finance applications.",
+    },
+    {
+      title: "Robot Development",
+      note: "UR3, ROS2, Gazebo, OpenAI Gym — simulation to real hardware.",
+    },
+    {
+      title: "Electrical Engineering",
+      note: "Embedded software, IoT, industrial automation, and PLC.",
+    },
+  ],
+};
+
 // ── "Now / Building" — what you're actively working on. Keep to 2–3 items. ──
 export type NowItem = {
   label: string; // mono kicker, e.g. "founder" / "engineer"

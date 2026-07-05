@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Nav from './components/v2/Nav';
 import Hero from './components/v2/Hero';
+import About from './components/v2/About';
 import Work from './components/v2/Work';
 import ExperienceTimeline from './components/v2/ExperienceTimeline';
 import PublicationsList from './components/v2/PublicationsList';
@@ -34,6 +35,7 @@ function App() {
     <div className="App bg-bone text-ink font-sans">
       <Nav />
       <Hero />
+      <About />
       <Work />
       <ExperienceTimeline />
       <PublicationsList />

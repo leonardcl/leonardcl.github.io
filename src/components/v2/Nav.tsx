@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 
 const links = [
+  { label: "about", to: "/#about" },
   { label: "work", to: "/#work" },
   { label: "experience", to: "/#experience" },
   { label: "education", to: "/#education" },
