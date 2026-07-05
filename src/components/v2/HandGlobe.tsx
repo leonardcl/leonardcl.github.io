@@ -33,29 +33,17 @@ for (let lat = -80; lat <= 80; lat += 20) {
   }
 }
 
-// ── Pixel hand: high-res 44×16 grid — palm up, fingers left, thumb toward
-//    the globe, forearm off the right edge. Gradient runs fingertips→forearm. ──
-const HAND_MAP = [
-  "..............................##............",
-  ".............................###............",
-  ".............................###............",
-  "............................####............",
-  "......##########............####............",
-  "....##############..........#####...........",
-  "..#################........######...........",
-  "...################........#######..........",
-  "..###################.....########..........",
-  "....########################################",
-  "......######################################",
-  "........####################################",
-  "...........#################################",
-  "...............#############################",
-  "....................########################",
-  "..........................##################",
-];
-const PXS = 5; // pixel size in viewBox units
-const HAND_X = 100;
-const HAND_Y = 200;
+// ── Pixel hand — pixelated from a REAL hand shape. We rasterize a palm-up
+//    hand emoji to an offscreen canvas, sample it on a grid, and rebuild it
+//    as gradient pixel art: real anatomy + real shading, our palette. ──
+const COLS = 46;
+const ROWS = 30;
+const PXS = 4.6; // pixel size in viewBox units
+const HAND_X = 98;
+const HAND_Y = 168;
+const SS = 4; // supersampling per cell
+
+type HandPixel = { x: number; y: number; c: number; r: number; color: string };
 
 // mix two hex colors
 const mix = (a: string, b: string, t: number) => {
@@ -69,27 +57,69 @@ const mix = (a: string, b: string, t: number) => {
   );
 };
 
-const COLS = HAND_MAP[0].length;
-const ROWS = HAND_MAP.length;
-const handPixels = HAND_MAP.flatMap((row, r) =>
-  row.split("").flatMap((ch, c) => {
-    if (ch === ".") return [];
-    // digital gradient: electric blue at the fingertips → ink at the forearm
-    const t = Math.min(1, (c / (COLS - 1)) * 0.75 + (r / (ROWS - 1)) * 0.35);
-    return [
-      {
+const sampleHand = (glyph: string, flip: boolean): HandPixel[] => {
+  const cw = COLS * SS;
+  const ch = ROWS * SS;
+  const canvas = document.createElement("canvas");
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return [];
+  ctx.clearRect(0, 0, cw, ch);
+  if (flip) {
+    ctx.translate(cw, 0);
+    ctx.scale(-1, 1);
+  }
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `${ch * 1.02}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+  ctx.fillText(glyph, cw / 2, ch / 2 + ch * 0.04);
+  const data = ctx.getImageData(0, 0, cw, ch).data;
+
+  const pixels: HandPixel[] = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      let alpha = 0;
+      let lum = 0;
+      let n = 0;
+      for (let dy = 0; dy < SS; dy++) {
+        for (let dx = 0; dx < SS; dx++) {
+          const i = ((r * SS + dy) * cw + (c * SS + dx)) * 4;
+          const a = data[i + 3];
+          alpha += a;
+          if (a > 40) {
+            lum += (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+            n++;
+          }
+        }
+      }
+      if (alpha / (SS * SS) < 110) continue; // cell mostly empty
+      const shade = n ? lum / n : 0.5; // emoji's own light/shadow
+      // palette gradient (fingertip blue → forearm ink), shaded by the artwork
+      const tGrad = Math.min(1, (c / (COLS - 1)) * 0.7 + (r / (ROWS - 1)) * 0.3);
+      const base = mix("#5A5FF0", "#26264F", tGrad);
+      pixels.push({
         x: HAND_X + c * PXS,
         y: HAND_Y + r * PXS,
         c,
         r,
-        color: mix("#4B54F0", "#191918", t),
-      },
-    ];
-  })
-);
+        color: mix(base, "#101020", (1 - shade) * 0.75),
+      });
+    }
+  }
+  return pixels;
+};
 
 const HandGlobe = () => {
   const [t, setT] = useState(0);
+  const [handPixels, setHandPixels] = useState<HandPixel[]>([]);
+
+  // Rasterize the hand once on mount (fallback glyph if the first is unsupported)
+  useEffect(() => {
+    let px = sampleHand("🫴", false);
+    if (px.length < 60) px = sampleHand("✋", false);
+    setHandPixels(px);
+  }, []);
 
   useEffect(() => {
     let raf = 0;
