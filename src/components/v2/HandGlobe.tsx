@@ -150,8 +150,24 @@ const HandGlobe = () => {
   const land = landPoints.map(project);
 
   return (
-    <div className="hand-globe relative select-none" aria-hidden>
-      <svg viewBox="0 0 320 300" className="w-full max-w-[460px] mx-auto overflow-visible">
+    <div className="hand-globe relative w-full max-w-[460px] mx-auto select-none" aria-hidden>
+      <svg viewBox="0 0 320 300" className="w-full overflow-visible">
+        <defs>
+          <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3538CD" stopOpacity="0.10" />
+            <stop offset="70%" stopColor="#3538CD" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#3538CD" stopOpacity="0" />
+          </linearGradient>
+          <radialGradient id="palmGlow">
+            <stop offset="0%" stopColor="#3538CD" stopOpacity="0.14" />
+            <stop offset="100%" stopColor="#3538CD" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {/* light falling from the globe onto the palm — ties the two together */}
+        <path d={`M ${GX - 34} ${GY + R - 6} L ${GX - 52} 236 L ${GX + 52} 236 L ${GX + 34} ${GY + R - 6} Z`} fill="url(#beam)" />
+        <ellipse cx={GX} cy={232} rx={58} ry={16} fill="url(#palmGlow)" />
+
         {/* ── The digital globe ── */}
         <g className="globe-float">
           {/* halo */}
