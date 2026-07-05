@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { site } from "../../data/site";
-import SkillList from "./SkillList";
+import SkillConstellation from "./SkillConstellation";
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -100,9 +100,9 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* ── Right: the skill list ── */}
-        <div className="hidden lg:block">
-          <SkillList offset={offset} />
+        {/* ── Right: the skill constellation ── */}
+        <div className="hidden lg:block rise-blur" style={{ animationDelay: "800ms" }}>
+          <SkillConstellation offset={offset} />
         </div>
       </div>
 
