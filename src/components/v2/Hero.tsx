@@ -33,6 +33,17 @@ const Hero = () => {
         style={{ animationDelay: "-9s" }}
       />
 
+      {/* Engineering dot grid — faint blueprint paper */}
+      <div className="hero-grid" />
+      {/* Blue dots wake up inside a spotlight that follows the cursor */}
+      <div
+        className="hero-grid-lit"
+        style={{
+          WebkitMaskImage: `radial-gradient(240px circle at ${(offset.x / 2 + 0.5) * 100}% ${(offset.y / 2 + 0.5) * 100}%, black, transparent 70%)`,
+          maskImage: `radial-gradient(240px circle at ${(offset.x / 2 + 0.5) * 100}% ${(offset.y / 2 + 0.5) * 100}%, black, transparent 70%)`,
+        }}
+      />
+
       <div className="relative max-w-site mx-auto w-full px-6 sm:px-10 pt-24 pb-16 grid lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] gap-10 items-center">
         {/* ── Left: identity ── */}
         <div>
