@@ -106,13 +106,13 @@ const HandGlobe = () => {
             alpha += data[((r * S + dy) * size + (c * S + dx)) * 4 + 3];
         if (alpha / 16 < 120) continue;
         const seed = ((r * 73856093) ^ (c * 19349663)) >>> 0;
-        if (seed % 100 >= 22) continue; // keep ~22% of cells — sparse
-        const isDigit = seed % 3 !== 0;
+        if (seed % 100 >= 52) continue; // keep ~half the cells — dense pixelation
+        const isDigit = seed % 4 !== 0 && seed % 4 !== 1; // half digits, half squares
         bits.push({
           lx: (c / GRID) * 100,
           ly: (r / GRID) * 100,
           ch: isDigit ? String(seed % 2) : null,
-          tone: seed % 5 === 0 ? BLUSH : "#B9BCF5",
+          tone: seed % 6 === 0 ? BLUSH : seed % 3 === 0 ? "#8A8FF2" : "#C4C7F7",
           delay: (seed % 40) / 10,
         });
       }
@@ -275,8 +275,8 @@ const HandGlobe = () => {
                 style={{
                   left: `${bit.lx}%`,
                   top: `${bit.ly}%`,
-                  width: 3.5,
-                  height: 3.5,
+                  width: 5,
+                  height: 5,
                   backgroundColor: bit.tone,
                   animationDelay: `${-bit.delay}s`,
                 }}
