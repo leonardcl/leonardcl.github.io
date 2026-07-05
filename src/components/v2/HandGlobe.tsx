@@ -162,10 +162,19 @@ const HandGlobe = () => {
             <stop offset="0%" stopColor="#3538CD" stopOpacity="0.14" />
             <stop offset="100%" stopColor="#3538CD" stopOpacity="0" />
           </radialGradient>
+          <filter id="beamBlur" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="14" />
+          </filter>
         </defs>
 
-        {/* light falling from the globe onto the palm — ties the two together */}
-        <path d={`M ${GX - 34} ${GY + R - 6} L ${GX - 52} 236 L ${GX + 52} 236 L ${GX + 34} ${GY + R - 6} Z`} fill="url(#beam)" />
+        {/* light falling from the globe onto the palm — heavily blurred so it
+            reads as glow, not a shape */}
+        <path
+          d={`M ${GX - 30} ${GY + R - 6} L ${GX - 46} 232 L ${GX + 46} 232 L ${GX + 30} ${GY + R - 6} Z`}
+          fill="url(#beam)"
+          filter="url(#beamBlur)"
+          opacity="0.7"
+        />
         <ellipse cx={GX} cy={232} rx={58} ry={16} fill="url(#palmGlow)" />
 
         {/* ── The digital globe ── */}
