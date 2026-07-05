@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 import Reveal from "./Reveal";
 import { IconPlane } from "./Icons";
-import PixelHands from "./PixelHands";
+import HandGlobe from "./HandGlobe";
 
 const FooterV2 = () => (
   <footer id="contact" className="relative border-t border-line mt-12 overflow-hidden">
@@ -28,7 +28,7 @@ const FooterV2 = () => (
             </h2>
           </div>
           <div className="hidden lg:block">
-            <PixelHands />
+            <HandGlobe />
           </div>
         </div>
         <a
