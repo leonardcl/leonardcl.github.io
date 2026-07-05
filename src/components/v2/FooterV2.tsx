@@ -14,7 +14,7 @@ const FooterV2 = () => (
           <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">
             shall we talk?
           </p>
-          <span className="section-icon text-blush/70 w-6 h-6">
+          <span className="section-icon text-ink w-6 h-6">
             <IconPlane />
           </span>
         </div>

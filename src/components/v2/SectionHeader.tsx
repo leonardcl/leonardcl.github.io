@@ -19,7 +19,7 @@ const SectionHeader = ({ eyebrow, title, italicTitle, icon }: SectionHeaderProps
         </span>
         <span className="h-px flex-1 bg-line" />
         {icon && (
-          <span className="section-icon text-accent/70 w-7 h-7 sm:w-8 sm:h-8">
+          <span className="section-icon text-ink w-7 h-7 sm:w-8 sm:h-8">
             {icon}
           </span>
         )}
