@@ -148,10 +148,10 @@ const HandGlobe = () => {
 
       {/* ── The hand — real artwork first; pixels are just an effect ── */}
       <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[52%]">
-        {/* realistic hand, duotone-tinted, angled in from the right */}
+        {/* realistic hand, duotone-tinted, mirrored */}
         <span
-          className="hand-emoji absolute right-[-4%] bottom-[2%] leading-none"
-          style={{ transform: "rotate(-38deg)" }}
+          className="hand-emoji absolute left-1/2 bottom-0 leading-none"
+          style={{ transform: "translateX(-54%) scaleX(-1)" }}
         >
           🫴
         </span>
