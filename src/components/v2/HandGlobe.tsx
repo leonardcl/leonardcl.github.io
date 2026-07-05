@@ -151,7 +151,7 @@ const HandGlobe = () => {
 
   return (
     <div className="hand-globe relative select-none" aria-hidden>
-      <svg viewBox="0 0 320 300" className="w-full max-w-[320px] mx-auto overflow-visible">
+      <svg viewBox="0 0 320 300" className="w-full max-w-[460px] mx-auto overflow-visible">
         {/* ── The digital globe ── */}
         <g className="globe-float">
           {/* halo */}
@@ -244,7 +244,7 @@ const HandGlobe = () => {
         {/* realistic hand, duotone-tinted, mirrored — with a digit overlay */}
         <div
           className="absolute left-1/2 bottom-0"
-          style={{ width: 150, height: 150, transform: "translateX(-54%)" }}
+          style={{ width: 210, height: 210, transform: "translateX(-54%)" }}
         >
           <span
             className="hand-emoji block leading-none"
@@ -262,7 +262,7 @@ const HandGlobe = () => {
                   left: `${bit.lx}%`,
                   top: `${bit.ly}%`,
                   color: bit.tone,
-                  fontSize: 7,
+                  fontSize: 9,
                   animationDelay: `${-bit.delay}s`,
                 }}
               >
@@ -275,8 +275,8 @@ const HandGlobe = () => {
                 style={{
                   left: `${bit.lx}%`,
                   top: `${bit.ly}%`,
-                  width: 5,
-                  height: 5,
+                  width: 6.5,
+                  height: 6.5,
                   backgroundColor: bit.tone,
                   animationDelay: `${-bit.delay}s`,
                 }}
