@@ -33,30 +33,59 @@ for (let lat = -80; lat <= 80; lat += 20) {
   }
 }
 
-// ── Pixel hand: palm up, fingers left, thumb reaching toward the globe,
-//    forearm running off the right edge. '.'=empty '#'=ink 'o'=shade ──
+// ── Pixel hand: high-res 44×16 grid — palm up, fingers left, thumb toward
+//    the globe, forearm off the right edge. Gradient runs fingertips→forearm. ──
 const HAND_MAP = [
-  "................##......",
-  "...............###......",
-  "...............###......",
-  "..##...........###......",
-  ".####..........###......",
-  ".##o##........####......",
-  "..######....o####.......",
-  "...#####################",
-  "....####################",
-  "......##################",
+  "..............................##............",
+  ".............................###............",
+  ".............................###............",
+  "............................####............",
+  "......##########............####............",
+  "....##############..........#####...........",
+  "..#################........######...........",
+  "...################........#######..........",
+  "..###################.....########..........",
+  "....########################################",
+  "......######################################",
+  "........####################################",
+  "...........#################################",
+  "...............#############################",
+  "....................########################",
+  "..........................##################",
 ];
-const PXS = 9; // pixel size in viewBox units
-const HAND_X = 104; // grid origin — flush to the right edge
-const HAND_Y = 185;
+const PXS = 5; // pixel size in viewBox units
+const HAND_X = 100;
+const HAND_Y = 200;
 
+// mix two hex colors
+const mix = (a: string, b: string, t: number) => {
+  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+  return (
+    "#" +
+    pa
+      .map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, "0"))
+      .join("")
+  );
+};
+
+const COLS = HAND_MAP[0].length;
+const ROWS = HAND_MAP.length;
 const handPixels = HAND_MAP.flatMap((row, r) =>
-  row.split("").flatMap((ch, c) =>
-    ch === "."
-      ? []
-      : [{ x: HAND_X + c * PXS, y: HAND_Y + r * PXS, shade: ch === "o" }]
-  )
+  row.split("").flatMap((ch, c) => {
+    if (ch === ".") return [];
+    // digital gradient: electric blue at the fingertips → ink at the forearm
+    const t = Math.min(1, (c / (COLS - 1)) * 0.75 + (r / (ROWS - 1)) * 0.35);
+    return [
+      {
+        x: HAND_X + c * PXS,
+        y: HAND_Y + r * PXS,
+        c,
+        r,
+        color: mix("#4B54F0", "#191918", t),
+      },
+    ];
+  })
 );
 
 const HandGlobe = () => {
@@ -170,21 +199,26 @@ const HandGlobe = () => {
           opacity="0.6"
         />
 
-        {/* ── The hand — pixel art, entering from the right, palm up ── */}
-        <g>
+        {/* ── The hand — pixel art, gradient, breathing, shimmer wave ── */}
+        <g className="hand-breathe">
           {handPixels.map((px, i) => {
             const seed = ((i * 2654435761) >>> 0) % 900;
             return (
-              <rect
+              <g
                 key={i}
                 className="pixel-cell"
-                x={px.x}
-                y={px.y}
-                width={PXS - 0.6}
-                height={PXS - 0.6}
-                fill={px.shade ? "#3F3F3D" : INK}
                 style={{ animationDelay: `${200 + seed}ms, ${2400 + seed * 9}ms` }}
-              />
+              >
+                <rect
+                  className="pixel-wave"
+                  x={px.x}
+                  y={px.y}
+                  width={PXS - 0.4}
+                  height={PXS - 0.4}
+                  fill={px.color}
+                  style={{ animationDelay: `${-(px.c + px.r) * 70}ms` }}
+                />
+              </g>
             );
           })}
         </g>
