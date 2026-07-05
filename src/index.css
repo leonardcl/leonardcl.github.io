@@ -186,6 +186,40 @@ body::after {
     animation-duration: 1.5s;
 }
 
+/* ── Soul: pixel hands (footer) ── */
+@keyframes pixelIn {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes pixelFlicker {
+    0%, 92%, 100% { opacity: 1; }
+    94% { opacity: 0.15; }
+    96% { opacity: 0.8; }
+    98% { opacity: 0.3; }
+}
+.pixel-cell {
+    /* materialize once, then glitch-flicker forever (two animations, two delays) */
+    animation: pixelIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               pixelFlicker 9s steps(1) infinite;
+}
+@keyframes sparkPulse {
+    0%, 100% { transform: rotate(45deg) scale(0.7); opacity: 0.9; box-shadow: 0 0 6px rgba(214, 51, 108, 0.5); }
+    50% { transform: rotate(45deg) scale(1.15); opacity: 1; box-shadow: 0 0 22px rgba(214, 51, 108, 0.9), 0 0 40px rgba(53, 56, 205, 0.4); }
+}
+.spark-core {
+    animation: sparkPulse 1.6s ease-in-out infinite;
+}
+@keyframes sparkHalo {
+    0% { transform: rotate(45deg) scale(0.6); opacity: 0.8; }
+    100% { transform: rotate(45deg) scale(1.8); opacity: 0; }
+}
+.spark-halo {
+    animation: sparkHalo 1.6s ease-out infinite;
+}
+/* Hands pull together when the footer CTA is hovered */
+.footer-cta:hover .pixel-hand-left { transform: translateX(7px); }
+.footer-cta:hover .pixel-hand-right { transform: translateX(-7px); }
+
 /* ── Soul: blog page ── */
 @keyframes slowSpin {
     from { transform: rotate(0deg); }

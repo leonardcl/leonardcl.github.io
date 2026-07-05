@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 import Reveal from "./Reveal";
 import { IconPlane } from "./Icons";
+import PixelHands from "./PixelHands";
 
 const FooterV2 = () => (
   <footer id="contact" className="relative border-t border-line mt-12 overflow-hidden">
@@ -10,19 +11,26 @@ const FooterV2 = () => (
 
     <div className="relative max-w-site mx-auto px-6 sm:px-10 py-24">
       <Reveal>
-        <div className="flex items-center gap-3">
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">
-            shall we talk?
-          </p>
-          <span className="section-icon text-ink w-6 h-6">
-            <IconPlane />
-          </span>
+        <div className="footer-cta grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 items-center">
+          <div>
+            <div className="flex items-center gap-3">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">
+                shall we talk?
+              </p>
+              <span className="section-icon text-ink w-6 h-6">
+                <IconPlane />
+              </span>
+            </div>
+            <h2 className="mt-6 font-display text-4xl sm:text-6xl text-ink font-medium leading-tight">
+              Let's build
+              <br />
+              <span className="italic font-light text-blush">something.</span>
+            </h2>
+          </div>
+          <div className="hidden lg:block">
+            <PixelHands />
+          </div>
         </div>
-        <h2 className="mt-6 font-display text-4xl sm:text-6xl text-ink font-medium leading-tight">
-          Let's build
-          <br />
-          <span className="italic font-light text-blush">something.</span>
-        </h2>
         <a
           href={`mailto:${site.email}`}
           className="mt-8 inline-block u-link font-mono text-sm sm:text-base text-ink"
