@@ -85,8 +85,10 @@ body::after {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(rgba(25, 25, 24, 0.07) 1px, transparent 1px);
+    /* soft-edged dots — they fade out instead of cutting off */
+    background-image: radial-gradient(circle, rgba(25, 25, 24, 0.08) 0.5px, rgba(25, 25, 24, 0.04) 1px, transparent 2px);
     background-size: 26px 26px;
+    filter: blur(0.3px);
     /* fade the grid toward the edges so it feels like it belongs */
     -webkit-mask-image: radial-gradient(ellipse 90% 85% at 50% 45%, black 40%, transparent 100%);
     mask-image: radial-gradient(ellipse 90% 85% at 50% 45%, black 40%, transparent 100%);
@@ -95,8 +97,10 @@ body::after {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background-image: radial-gradient(rgba(53, 56, 205, 0.5) 1.2px, transparent 1.2px);
+    /* glowing soft dots — bright core melting into a halo */
+    background-image: radial-gradient(circle, rgba(53, 56, 205, 0.55) 0.5px, rgba(53, 56, 205, 0.25) 1.5px, transparent 3px);
     background-size: 26px 26px;
+    filter: blur(0.6px);
     /* only visible inside the cursor spotlight — position set inline */
     transition: -webkit-mask-position 0.18s ease-out, mask-position 0.18s ease-out;
 }
