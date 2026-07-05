@@ -33,6 +33,32 @@ for (let lat = -80; lat <= 80; lat += 20) {
   }
 }
 
+// ── Pixel hand: palm up, fingers left, thumb reaching toward the globe,
+//    forearm running off the right edge. '.'=empty '#'=ink 'o'=shade ──
+const HAND_MAP = [
+  "................##......",
+  "...............###......",
+  "...............###......",
+  "..##...........###......",
+  ".####..........###......",
+  ".##o##........####......",
+  "..######....o####.......",
+  "...#####################",
+  "....####################",
+  "......##################",
+];
+const PXS = 9; // pixel size in viewBox units
+const HAND_X = 104; // grid origin — flush to the right edge
+const HAND_Y = 185;
+
+const handPixels = HAND_MAP.flatMap((row, r) =>
+  row.split("").flatMap((ch, c) =>
+    ch === "."
+      ? []
+      : [{ x: HAND_X + c * PXS, y: HAND_Y + r * PXS, shade: ch === "o" }]
+  )
+);
+
 const HandGlobe = () => {
   const [t, setT] = useState(0);
 
@@ -69,7 +95,7 @@ const HandGlobe = () => {
 
   return (
     <div className="hand-globe relative select-none" aria-hidden>
-      <svg viewBox="0 0 320 400" className="w-full max-w-[320px] mx-auto overflow-visible">
+      <svg viewBox="0 0 320 300" className="w-full max-w-[320px] mx-auto overflow-visible">
         {/* ── The digital globe ── */}
         <g className="globe-float">
           {/* halo */}
@@ -144,38 +170,23 @@ const HandGlobe = () => {
           opacity="0.6"
         />
 
-        {/* ── The hand — entering from the right, palm open under the globe ── */}
-        <g fill="none" stroke={INK} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          {/* top edge of forearm → back of hand → thumb → web → fingers (left) → underside → forearm bottom */}
-          <path
-            d="M 320 238
-               C 292 233 266 231 246 236
-               C 238 226 231 213 227 202
-               C 224 194 215 196 216 205
-               C 217 216 212 228 204 234
-               C 180 238 148 240 119 250
-               C 109 254 109 264 119 267
-               C 150 272 182 272 208 271
-               C 238 270 265 274 288 280
-               C 300 283 312 285 320 286"
-          />
-          {/* finger separations */}
-          <path d="M 128 252 C 132 258 137 263 143 267" strokeWidth="1.4" opacity="0.75" />
-          <path d="M 150 248 C 154 255 159 261 165 266" strokeWidth="1.4" opacity="0.75" />
-          <path d="M 173 244 C 177 252 181 259 186 265" strokeWidth="1.4" opacity="0.75" />
-          {/* thumb crease */}
-          <path d="M 204 234 C 208 244 212 254 214 264" strokeWidth="1.4" opacity="0.75" />
-          {/* palm crease */}
-          <path d="M 232 240 C 236 250 239 258 241 266" strokeWidth="1.2" opacity="0.5" />
-        </g>
-
-        {/* engraving hatching — forearm */}
-        <g stroke={INK} strokeWidth="1" opacity="0.35" strokeLinecap="round">
-          <path d="M 292 244 l 3 32" />
-          <path d="M 302 245 l 3 33" />
-          <path d="M 312 246 l 2 34" />
-          <path d="M 262 240 l 4 30" />
-          <path d="M 274 242 l 4 31" />
+        {/* ── The hand — pixel art, entering from the right, palm up ── */}
+        <g>
+          {handPixels.map((px, i) => {
+            const seed = ((i * 2654435761) >>> 0) % 900;
+            return (
+              <rect
+                key={i}
+                className="pixel-cell"
+                x={px.x}
+                y={px.y}
+                width={PXS - 0.6}
+                height={PXS - 0.6}
+                fill={px.shade ? "#3F3F3D" : INK}
+                style={{ animationDelay: `${200 + seed}ms, ${2400 + seed * 9}ms` }}
+              />
+            );
+          })}
         </g>
       </svg>
     </div>
