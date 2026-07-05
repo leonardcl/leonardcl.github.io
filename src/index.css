@@ -84,18 +84,15 @@ body::after {
     animation: blobDrift 18s ease-in-out infinite;
 }
 
-/* ── Soul: skills marquee ── */
-@keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+/* ── Soul: floating skill tags (idle drift) ── */
+@keyframes skillFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(6px, -10px) rotate(0.8deg); }
+    50% { transform: translate(-4px, -16px) rotate(-0.6deg); }
+    75% { transform: translate(-8px, -6px) rotate(0.4deg); }
 }
-.marquee-track {
-    display: flex;
-    width: max-content;
-    animation: marquee 36s linear infinite;
-}
-.marquee-track:hover {
-    animation-play-state: paused;
+.skill-float {
+    animation: skillFloat 6s ease-in-out infinite;
 }
 
 /* ── Soul: animated timeline ── */
