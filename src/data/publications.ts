@@ -8,6 +8,13 @@ export type Publication = {
 
 export const publications: Publication[] = [
   {
+    year: "2026",
+    title:
+      "Breaking the Fog with SIGHT: Attention-Guided State Prediction for Partially Observable Reinforcement Learning",
+    authors: "Limanjaya, L. C., Kang, D.-K.",
+    venue: "ACM Transactions on Intelligent Systems and Technology",
+  },
+  {
     year: "2025",
     title:
       "From Queries to Courses: SKYRAG's Revolution in Learning Path Generation via Keyword-based Document Retrieval",
