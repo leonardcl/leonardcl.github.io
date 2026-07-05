@@ -13,6 +13,7 @@ export default {
                 line: "#E6E4DC",
                 accent: "#3538CD",
                 accentdim: "#8A8CE0",
+                blush: "#D6336C",
             },
             fontFamily: {
                 display: ["Fraunces", ...defaultTheme.fontFamily.serif],

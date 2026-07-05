@@ -4,6 +4,8 @@ export const site = {
   name: "Leonard Christopher",
   shortName: "leonardcl",
   role: "engineer & founder",
+  // Hero kicker — the motto distilled. More "you" than a job title.
+  kicker: "curiosity → systems → impact",
   // One confident sentence. This is the first thing every visitor reads.
   tagline:
     "I build intelligent systems — robots, AI products, and the studio that ships them.",

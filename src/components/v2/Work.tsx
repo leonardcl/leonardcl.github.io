@@ -4,7 +4,7 @@ import Reveal from "./Reveal";
 
 const Work = () => (
   <section id="work" className="max-w-site mx-auto px-6 sm:px-10 py-24">
-    <SectionHeader index="01" title="Selected Work" hint="things i've shipped" />
+    <SectionHeader eyebrow="things i've shipped" title="Selected" italicTitle="Work" />
 
     <div>
       {projects.map((p, i) => (

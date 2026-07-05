@@ -84,15 +84,35 @@ body::after {
     animation: blobDrift 18s ease-in-out infinite;
 }
 
-/* ── Soul: floating skill tags (idle drift) ── */
-@keyframes skillFloat {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(6px, -10px) rotate(0.8deg); }
-    50% { transform: translate(-4px, -16px) rotate(-0.6deg); }
-    75% { transform: translate(-8px, -6px) rotate(0.4deg); }
+/* ── Soul: orbital skill system ── */
+@keyframes orbitSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
-.skill-float {
-    animation: skillFloat 6s ease-in-out infinite;
+.orbit-spin {
+    animation: orbitSpin linear infinite;
+}
+/* Counter-rotation keeps labels upright while they orbit */
+.orbit-counter {
+    animation: orbitSpin linear infinite reverse;
+}
+.orbit-spin.reverse {
+    animation-direction: reverse;
+}
+.orbit-spin.reverse .orbit-counter {
+    animation-direction: normal;
+}
+/* Hovering anywhere on a ring group pauses that ring */
+.orbit-group:hover .orbit-spin,
+.orbit-group:hover .orbit-counter {
+    animation-play-state: paused;
+}
+@keyframes corePulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.35); opacity: 0.5; }
+}
+.core-pulse {
+    animation: corePulse 3.2s ease-in-out infinite;
 }
 
 /* ── Soul: animated timeline ── */

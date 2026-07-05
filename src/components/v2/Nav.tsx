@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 
 const links = [
-  { n: "01", label: "work", to: "/#work" },
-  { n: "02", label: "experience", to: "/#experience" },
-  { n: "03", label: "publications", to: "/#publications" },
-  { n: "04", label: "blog", to: "/blog" },
+  { label: "work", to: "/#work" },
+  { label: "experience", to: "/#experience" },
+  { label: "education", to: "/#education" },
+  { label: "publications", to: "/#publications" },
+  { label: "blog", to: "/blog" },
 ];
 
 const Nav = () => {
@@ -44,7 +45,6 @@ const Nav = () => {
               to={l.to}
               className="group font-mono text-xs text-inkmuted hover:text-ink transition-colors"
             >
-              <span className="text-accent/60 group-hover:text-accent mr-1">{l.n}</span>
               {l.label}
             </Link>
           ))}
@@ -82,7 +82,6 @@ const Nav = () => {
               onClick={() => setOpen(false)}
               className="font-mono text-sm text-inkmuted hover:text-ink"
             >
-              <span className="text-accent mr-2">{l.n}</span>
               {l.label}
             </Link>
           ))}

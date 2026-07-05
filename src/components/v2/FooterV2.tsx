@@ -15,7 +15,7 @@ const FooterV2 = () => (
         <h2 className="mt-6 font-display text-4xl sm:text-6xl text-ink font-medium leading-tight">
           Let's build
           <br />
-          <span className="italic font-light">something.</span>
+          <span className="italic font-light text-blush">something.</span>
         </h2>
         <a
           href={`mailto:${site.email}`}
