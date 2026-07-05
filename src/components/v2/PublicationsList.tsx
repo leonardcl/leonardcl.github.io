@@ -1,12 +1,13 @@
 import { publications } from "../../data/publications";
 import SectionHeader from "./SectionHeader";
+import { IconBook } from "./Icons";
 import Reveal from "./Reveal";
 
 const PublicationsList = () => {
   let lastYear = "";
   return (
     <section id="publications" className="max-w-site mx-auto px-6 sm:px-10 py-24">
-      <SectionHeader eyebrow="peer-reviewed" title="" italicTitle="Publications" />
+      <SectionHeader eyebrow="what have i published?" title="" italicTitle="Publications" icon={<IconBook />} />
       <div className="border-t border-line">
         {publications.map((pub) => {
           const showYear = pub.year !== lastYear;

@@ -147,6 +147,20 @@ body::after {
     animation: dotBreathe 4s ease-in-out infinite;
 }
 
+/* ── Soul: section icons — gentle bob ── */
+@keyframes iconBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-4px) rotate(-4deg); }
+}
+.section-icon svg {
+    width: 100%;
+    height: 100%;
+    animation: iconBob 4.5s ease-in-out infinite;
+}
+.section-icon:hover svg {
+    animation-duration: 1.5s;
+}
+
 /* ── Soul: blog page ── */
 @keyframes slowSpin {
     from { transform: rotate(0deg); }

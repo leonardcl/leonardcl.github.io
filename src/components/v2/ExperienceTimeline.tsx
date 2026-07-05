@@ -1,5 +1,6 @@
 import { career, education, ExperienceItem } from "../../data/experience";
 import SectionHeader from "./SectionHeader";
+import { IconRoute, IconCap } from "./Icons";
 import Reveal from "./Reveal";
 
 /**
@@ -79,12 +80,12 @@ const Timeline = ({
 const ExperienceTimeline = () => (
   <>
     <section id="experience" className="max-w-site mx-auto px-6 sm:px-10 py-24">
-      <SectionHeader eyebrow="the journey" title="Work" italicTitle="Experience" />
+      <SectionHeader eyebrow="where has the journey taken me?" title="Work" italicTitle="Experience" icon={<IconRoute />} />
       <Timeline items={career} tone="accent" />
     </section>
 
     <section id="education" className="max-w-site mx-auto px-6 sm:px-10 pb-24">
-      <SectionHeader eyebrow="foundations" title="" italicTitle="Education" />
+      <SectionHeader eyebrow="where did i study?" title="" italicTitle="Education" icon={<IconCap />} />
       <Timeline items={education} tone="blush" />
     </section>
   </>

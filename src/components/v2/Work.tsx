@@ -1,10 +1,11 @@
 import { projects } from "../../data/projects";
 import SectionHeader from "./SectionHeader";
+import { IconSpark } from "./Icons";
 import Reveal from "./Reveal";
 
 const Work = () => (
   <section id="work" className="max-w-site mx-auto px-6 sm:px-10 py-24">
-    <SectionHeader eyebrow="things i've shipped" title="Selected" italicTitle="Work" />
+    <SectionHeader eyebrow="what have i created?" title="Selected" italicTitle="Work" icon={<IconSpark />} />
 
     <div>
       {projects.map((p, i) => (
