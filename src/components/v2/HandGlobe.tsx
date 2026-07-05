@@ -16,7 +16,7 @@ const GX = 150; // globe center
 const GY = 112;
 const TILT = 0.32; // fixed axial tilt
 
-// Point sphere: latitude rings every 20°, longitude every 18°
+// Point sphere: latitude rings every 20°, longitude every 18° (faint ocean grid)
 type P3 = { x: number; y: number; z: number; data: boolean };
 const spherePoints: P3[] = [];
 let count = 0;
@@ -33,8 +33,92 @@ for (let lat = -80; lat <= 80; lat += 20) {
   }
 }
 
+// ── Continents: coarse equirectangular land mask (36 lon × 18 lat, 10° cells).
+//    Land cells become bright dots → the sphere reads as the actual world. ──
+const LAND = [
+  ".............###....................",
+  "....########..##........###########.",
+  "...##########....####..############.",
+  "....#########....#####.###########..",
+  ".....########....##############.##..",
+  "......######.....#############..#...",
+  ".......####......#######.######.#...",
+  ".........##.....########..##..##....",
+  "..........####....#####...######....",
+  "..........#####....####....#####....",
+  "...........####....###......####....",
+  "...........###.....##.......#####...",
+  "...........##.......#........###....",
+  "...........##......................#",
+  "...........#........................",
+  "....................................",
+  "..##########################........",
+  "####################################",
+];
+const landPoints: { x: number; y: number; z: number }[] = [];
+LAND.forEach((row, r) => {
+  const lat = 85 - r * 10;
+  const phi = (lat * Math.PI) / 180;
+  row.split("").forEach((ch, c) => {
+    if (ch !== "#") return;
+    const lon = -180 + c * 10 + 5;
+    const lam = (lon * Math.PI) / 180;
+    landPoints.push({
+      x: R * Math.cos(phi) * Math.cos(lam),
+      y: R * Math.sin(phi),
+      z: R * Math.cos(phi) * Math.sin(lam),
+    });
+  });
+});
+
+type HandBit = { lx: number; ly: number; ch: string | null; tone: string; delay: number };
+
 const HandGlobe = () => {
   const [t, setT] = useState(0);
+  const [handBits, setHandBits] = useState<HandBit[]>([]);
+
+  // Sample the hand glyph once: sparse cells over the hand become tiny
+  // digits (0/1) and squares — the hand looks part-digitized.
+  useEffect(() => {
+    const GRID = 26;
+    const S = 8;
+    const size = GRID * S;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    // mirror to match the displayed hand
+    ctx.translate(size, 0);
+    ctx.scale(-1, 1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `${size * 0.95}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+    ctx.fillText("🫴", size / 2, size / 2 + size * 0.03);
+    const data = ctx.getImageData(0, 0, size, size).data;
+
+    const bits: HandBit[] = [];
+    for (let r = 0; r < GRID; r++) {
+      for (let c = 0; c < GRID; c++) {
+        let alpha = 0;
+        for (let dy = 0; dy < S; dy += 2)
+          for (let dx = 0; dx < S; dx += 2)
+            alpha += data[((r * S + dy) * size + (c * S + dx)) * 4 + 3];
+        if (alpha / 16 < 120) continue;
+        const seed = ((r * 73856093) ^ (c * 19349663)) >>> 0;
+        if (seed % 100 >= 22) continue; // keep ~22% of cells — sparse
+        const isDigit = seed % 3 !== 0;
+        bits.push({
+          lx: (c / GRID) * 100,
+          ly: (r / GRID) * 100,
+          ch: isDigit ? String(seed % 2) : null,
+          tone: seed % 5 === 0 ? BLUSH : "#B9BCF5",
+          delay: (seed % 40) / 10,
+        });
+      }
+    }
+    setHandBits(bits);
+  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -52,20 +136,18 @@ const HandGlobe = () => {
   const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
   const cosT = Math.cos(TILT), sinT = Math.sin(TILT);
 
-  const dots = spherePoints.map((p) => {
-    // rotate around the globe's vertical axis, then apply fixed tilt
+  // rotate around the globe's vertical axis, then apply fixed tilt
+  const project = (p: { x: number; y: number; z: number }) => {
     const x1 = p.x * cosY + p.z * sinY;
     const z1 = -p.x * sinY + p.z * cosY;
     const y2 = p.y * cosT - z1 * sinT;
     const z2 = p.y * sinT + z1 * cosT;
     const front = (R - z2) / (2 * R); // 1 = nearest, 0 = farthest
-    return {
-      sx: GX + x1,
-      sy: GY - y2,
-      front,
-      data: p.data,
-    };
-  });
+    return { sx: GX + x1, sy: GY - y2, front };
+  };
+
+  const dots = spherePoints.map((p) => ({ ...project(p), data: p.data }));
+  const land = landPoints.map(project);
 
   return (
     <div className="hand-globe relative select-none" aria-hidden>
@@ -78,15 +160,26 @@ const HandGlobe = () => {
           {/* limb (outline) */}
           <circle cx={GX} cy={GY} r={R} fill="none" stroke={ACCENT} strokeWidth="1" opacity="0.35" />
 
-          {/* rotating point-sphere */}
+          {/* faint rotating grid (oceans) */}
           {dots.map((d, i) => (
             <circle
               key={i}
               cx={d.sx}
               cy={d.sy}
-              r={d.data ? 1.1 + d.front * 1.6 : 0.7 + d.front * 1.3}
+              r={d.data ? 1.0 + d.front * 1.4 : 0.6 + d.front * 1.0}
               fill={d.data ? BLUSH : ACCENT}
-              opacity={0.1 + d.front * (d.data ? 0.95 : 0.75)}
+              opacity={0.06 + d.front * (d.data ? 0.8 : 0.4)}
+            />
+          ))}
+          {/* continents — the world itself, rotating */}
+          {land.map((d, i) => (
+            <circle
+              key={`l${i}`}
+              cx={d.sx}
+              cy={d.sy}
+              r={0.9 + d.front * 1.7}
+              fill={ACCENT}
+              opacity={Math.max(0.05, d.front * 1.05 - 0.18)}
             />
           ))}
 
@@ -148,13 +241,49 @@ const HandGlobe = () => {
 
       {/* ── The hand — real artwork first; pixels are just an effect ── */}
       <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[52%]">
-        {/* realistic hand, duotone-tinted, mirrored */}
-        <span
-          className="hand-emoji absolute left-1/2 bottom-0 leading-none"
-          style={{ transform: "translateX(-54%) scaleX(-1)" }}
+        {/* realistic hand, duotone-tinted, mirrored — with a digit overlay */}
+        <div
+          className="absolute left-1/2 bottom-0"
+          style={{ width: 150, height: 150, transform: "translateX(-54%)" }}
         >
-          🫴
-        </span>
+          <span
+            className="hand-emoji block leading-none"
+            style={{ transform: "scaleX(-1)" }}
+          >
+            🫴
+          </span>
+          {/* sparse binary bits pinned to the hand's own pixels */}
+          {handBits.map((bit, i) =>
+            bit.ch ? (
+              <span
+                key={i}
+                className="hand-bit absolute font-mono font-semibold"
+                style={{
+                  left: `${bit.lx}%`,
+                  top: `${bit.ly}%`,
+                  color: bit.tone,
+                  fontSize: 7,
+                  animationDelay: `${-bit.delay}s`,
+                }}
+              >
+                {bit.ch}
+              </span>
+            ) : (
+              <span
+                key={i}
+                className="hand-bit absolute"
+                style={{
+                  left: `${bit.lx}%`,
+                  top: `${bit.ly}%`,
+                  width: 3.5,
+                  height: 3.5,
+                  backgroundColor: bit.tone,
+                  animationDelay: `${-bit.delay}s`,
+                }}
+              />
+            )
+          )}
+        </div>
 
         {/* digitization: pixels dissolve off the hand; some become numbers */}
         {[

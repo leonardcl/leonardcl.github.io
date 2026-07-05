@@ -236,6 +236,16 @@ body::after {
     animation: pixelRise 5.5s ease-out infinite;
     opacity: 0;
 }
+/* binary bits shimmering on the hand's surface */
+@keyframes bitFlicker {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.85; }
+}
+.hand-bit {
+    line-height: 1;
+    animation: bitFlicker 3.6s ease-in-out infinite;
+}
+
 /* mid-flight morph: the square dissolves, a digit takes its place */
 @keyframes morphHide {
     0%, 46% { opacity: 1; }
