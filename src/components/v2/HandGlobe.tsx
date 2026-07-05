@@ -33,93 +33,8 @@ for (let lat = -80; lat <= 80; lat += 20) {
   }
 }
 
-// ── Pixel hand — pixelated from a REAL hand shape. We rasterize a palm-up
-//    hand emoji to an offscreen canvas, sample it on a grid, and rebuild it
-//    as gradient pixel art: real anatomy + real shading, our palette. ──
-const COLS = 46;
-const ROWS = 30;
-const PXS = 4.6; // pixel size in viewBox units
-const HAND_X = 98;
-const HAND_Y = 168;
-const SS = 4; // supersampling per cell
-
-type HandPixel = { x: number; y: number; c: number; r: number; color: string };
-
-// mix two hex colors
-const mix = (a: string, b: string, t: number) => {
-  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
-  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
-  return (
-    "#" +
-    pa
-      .map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, "0"))
-      .join("")
-  );
-};
-
-const sampleHand = (glyph: string, flip: boolean): HandPixel[] => {
-  const cw = COLS * SS;
-  const ch = ROWS * SS;
-  const canvas = document.createElement("canvas");
-  canvas.width = cw;
-  canvas.height = ch;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return [];
-  ctx.clearRect(0, 0, cw, ch);
-  if (flip) {
-    ctx.translate(cw, 0);
-    ctx.scale(-1, 1);
-  }
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `${ch * 1.02}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-  ctx.fillText(glyph, cw / 2, ch / 2 + ch * 0.04);
-  const data = ctx.getImageData(0, 0, cw, ch).data;
-
-  const pixels: HandPixel[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      let alpha = 0;
-      let lum = 0;
-      let n = 0;
-      for (let dy = 0; dy < SS; dy++) {
-        for (let dx = 0; dx < SS; dx++) {
-          const i = ((r * SS + dy) * cw + (c * SS + dx)) * 4;
-          const a = data[i + 3];
-          alpha += a;
-          if (a > 40) {
-            lum += (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
-            n++;
-          }
-        }
-      }
-      if (alpha / (SS * SS) < 110) continue; // cell mostly empty
-      const shade = n ? lum / n : 0.5; // emoji's own light/shadow
-      // palette gradient (fingertip blue → forearm ink), shaded by the artwork
-      const tGrad = Math.min(1, (c / (COLS - 1)) * 0.7 + (r / (ROWS - 1)) * 0.3);
-      const base = mix("#5A5FF0", "#26264F", tGrad);
-      pixels.push({
-        x: HAND_X + c * PXS,
-        y: HAND_Y + r * PXS,
-        c,
-        r,
-        color: mix(base, "#101020", (1 - shade) * 0.75),
-      });
-    }
-  }
-  return pixels;
-};
-
 const HandGlobe = () => {
   const [t, setT] = useState(0);
-  const [handPixels, setHandPixels] = useState<HandPixel[]>([]);
-
-  // Rasterize the hand once on mount (fallback glyph if the first is unsupported)
-  useEffect(() => {
-    let px = sampleHand("🫴", false);
-    if (px.length < 60) px = sampleHand("✋", false);
-    setHandPixels(px);
-  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -229,30 +144,39 @@ const HandGlobe = () => {
           opacity="0.6"
         />
 
-        {/* ── The hand — pixel art, gradient, breathing, shimmer wave ── */}
-        <g className="hand-breathe">
-          {handPixels.map((px, i) => {
-            const seed = ((i * 2654435761) >>> 0) % 900;
-            return (
-              <g
-                key={i}
-                className="pixel-cell"
-                style={{ animationDelay: `${200 + seed}ms, ${2400 + seed * 9}ms` }}
-              >
-                <rect
-                  className="pixel-wave"
-                  x={px.x}
-                  y={px.y}
-                  width={PXS - 0.4}
-                  height={PXS - 0.4}
-                  fill={px.color}
-                  style={{ animationDelay: `${-(px.c + px.r) * 70}ms` }}
-                />
-              </g>
-            );
-          })}
-        </g>
       </svg>
+
+      {/* ── The hand — real artwork first; pixels are just an effect ── */}
+      <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[46%]">
+        {/* realistic hand, duotone-tinted into the site palette */}
+        <span className="hand-emoji absolute left-1/2 bottom-0 -translate-x-[46%] leading-none">
+          🫴
+        </span>
+
+        {/* digitization: pixels dissolve off the hand and rise toward the globe */}
+        {[
+          { left: "38%", delay: 0, size: 7, tone: "#3538CD" },
+          { left: "46%", delay: 1.1, size: 5, tone: "#D6336C" },
+          { left: "52%", delay: 2.3, size: 8, tone: "#3538CD" },
+          { left: "42%", delay: 3.1, size: 4, tone: "#3538CD" },
+          { left: "58%", delay: 3.9, size: 6, tone: "#D6336C" },
+          { left: "35%", delay: 4.8, size: 5, tone: "#3538CD" },
+          { left: "49%", delay: 5.6, size: 7, tone: "#3538CD" },
+          { left: "55%", delay: 6.4, size: 4, tone: "#D6336C" },
+        ].map((px, i) => (
+          <span
+            key={i}
+            className="pixel-rise absolute top-[18%]"
+            style={{
+              left: px.left,
+              width: px.size,
+              height: px.size,
+              backgroundColor: px.tone,
+              animationDelay: `${px.delay}s`,
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 };

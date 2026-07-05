@@ -219,6 +219,21 @@ body::after {
     animation: handBreathe 4.5s ease-in-out infinite;
 }
 
+/* ── Soul: realistic hand + pixel-dissolve effect (footer) ── */
+.hand-emoji {
+    font-size: 150px;
+    /* duotone: real hand artwork tinted into the site's ink/blue palette */
+    filter: grayscale(1) sepia(1) hue-rotate(200deg) saturate(2.2) brightness(0.72) contrast(1.15);
+}
+@keyframes pixelRise {
+    0% { opacity: 0; transform: translateY(6px) rotate(0deg); }
+    18% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-88px) rotate(90deg); }
+}
+.pixel-rise {
+    animation: pixelRise 5.5s ease-out infinite;
+}
+
 /* ── Soul: hand & globe (footer) ── */
 @keyframes globeFloat {
     0%, 100% { transform: translateY(0); }
