@@ -106,13 +106,13 @@ const HandGlobe = () => {
             alpha += data[((r * S + dy) * size + (c * S + dx)) * 4 + 3];
         if (alpha / 16 < 120) continue;
         const seed = ((r * 73856093) ^ (c * 19349663)) >>> 0;
-        if (seed % 100 >= 52) continue; // keep ~half the cells — dense pixelation
-        const isDigit = seed % 4 !== 0 && seed % 4 !== 1; // half digits, half squares
+        if (seed % 100 >= 20) continue; // sparse — clean
+        const isDigit = seed % 3 !== 0;
         bits.push({
           lx: (c / GRID) * 100,
           ly: (r / GRID) * 100,
           ch: isDigit ? String(seed % 2) : null,
-          tone: seed % 6 === 0 ? BLUSH : seed % 3 === 0 ? "#8A8FF2" : "#C4C7F7",
+          tone: seed % 8 === 0 ? BLUSH : "#A9ADF4",
           delay: (seed % 40) / 10,
         });
       }
@@ -155,8 +155,7 @@ const HandGlobe = () => {
         {/* ── The digital globe ── */}
         <g className="globe-float">
           {/* halo */}
-          <circle cx={GX} cy={GY} r={R + 14} fill={ACCENT} opacity="0.06" />
-          <circle cx={GX} cy={GY} r={R + 30} fill={ACCENT} opacity="0.03" />
+          <circle cx={GX} cy={GY} r={R + 18} fill={ACCENT} opacity="0.05" />
           {/* limb (outline) */}
           <circle cx={GX} cy={GY} r={R} fill="none" stroke={ACCENT} strokeWidth="1" opacity="0.35" />
 
@@ -166,9 +165,9 @@ const HandGlobe = () => {
               key={i}
               cx={d.sx}
               cy={d.sy}
-              r={d.data ? 1.0 + d.front * 1.4 : 0.6 + d.front * 1.0}
-              fill={d.data ? BLUSH : ACCENT}
-              opacity={0.06 + d.front * (d.data ? 0.8 : 0.4)}
+              r={0.6 + d.front * 0.9}
+              fill={ACCENT}
+              opacity={0.04 + d.front * 0.3}
             />
           ))}
           {/* continents — the world itself, rotating */}
@@ -182,12 +181,6 @@ const HandGlobe = () => {
               opacity={Math.max(0.05, d.front * 1.05 - 0.18)}
             />
           ))}
-
-          {/* polar axis ticks */}
-          <g stroke={ACCENT} strokeWidth="1.2" strokeLinecap="round" opacity="0.7">
-            <path d={`M ${GX + R * Math.sin(TILT) * 0} ${GY - R * cosT - 10} v 7`} transform={`rotate(${(TILT * 180) / Math.PI} ${GX} ${GY})`} />
-            <path d={`M ${GX} ${GY + R * cosT + 3} v 7`} transform={`rotate(${(TILT * 180) / Math.PI} ${GX} ${GY})`} />
-          </g>
 
           {/* tilted satellite ring */}
           <g className="sat-ring">
@@ -213,15 +206,6 @@ const HandGlobe = () => {
             />
           </g>
 
-          {/* twinkling sparks */}
-          <g stroke={BLUSH} strokeWidth="1.6" strokeLinecap="round">
-            <g className="twinkle" style={{ animationDelay: "0s" }}>
-              <path d="M 244 40 v 12 M 238 46 h 12" />
-            </g>
-            <g className="twinkle" style={{ animationDelay: "-1.3s" }}>
-              <path d="M 70 58 v 9 M 65.5 62.5 h 9" />
-            </g>
-          </g>
         </g>
 
         {/* levitation ring between palm and globe */}
@@ -287,15 +271,11 @@ const HandGlobe = () => {
 
         {/* digitization: pixels dissolve off the hand; some become numbers */}
         {[
-          { left: "40%", delay: 0, size: 7, tone: "#3538CD" },
-          { left: "48%", delay: 1.1, size: 5, tone: "#D6336C", digit: "1" },
-          { left: "55%", delay: 2.3, size: 8, tone: "#3538CD" },
-          { left: "44%", delay: 3.1, size: 5, tone: "#3538CD", digit: "0" },
-          { left: "61%", delay: 3.9, size: 6, tone: "#D6336C" },
-          { left: "37%", delay: 4.8, size: 5, tone: "#3538CD", digit: "7" },
-          { left: "52%", delay: 5.6, size: 7, tone: "#3538CD", digit: "0" },
-          { left: "58%", delay: 6.4, size: 4, tone: "#D6336C" },
-          { left: "47%", delay: 7.3, size: 6, tone: "#3538CD", digit: "1" },
+          { left: "42%", delay: 0, size: 6, tone: "#3538CD" },
+          { left: "50%", delay: 1.6, size: 5, tone: "#D6336C", digit: "1" },
+          { left: "56%", delay: 3.2, size: 7, tone: "#3538CD" },
+          { left: "46%", delay: 4.8, size: 5, tone: "#3538CD", digit: "0" },
+          { left: "60%", delay: 6.4, size: 4, tone: "#D6336C" },
         ].map((px, i) => (
           <span
             key={i}
