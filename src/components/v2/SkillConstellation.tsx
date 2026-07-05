@@ -65,6 +65,14 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) => {
   const [hovered, setHovered] = useState<string | null>(null);
   const [, setFrame] = useState(0);
+  // Entrance cascade plays once; afterwards animation classes are removed.
+  // (Depth sorting reorders the DOM, which would restart CSS animations —
+  //  that was the "node vanishes then pops back" bug.)
+  const [intro, setIntro] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIntro(false), 3300); // after the last edge finishes drawing
+    return () => clearTimeout(timer);
+  }, []);
 
   // Animation state lives in refs — updated every frame, eased, never jumps
   const anim = useRef({
@@ -160,7 +168,11 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
     hovered !== null &&
     edges.some(([p, q]) => (p === hovered && q === id) || (q === hovered && p === id));
 
-  const drawOrder = [...nodes].sort((p, q) => projected[q.id].z - projected[p.id].z);
+  // Keep DOM order stable during the intro so animations never restart;
+  // sort by depth afterwards so near nodes paint over far ones.
+  const drawOrder = intro
+    ? nodes
+    : [...nodes].sort((p, q) => projected[q.id].z - projected[p.id].z);
 
   return (
     <div
@@ -195,9 +207,9 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
               x2={pb.x}
               y2={pb.y}
               pathLength={1}
-              className="edge-draw"
+              className={intro ? "edge-draw" : ""}
               style={{
-                animationDelay: `${900 + i * 100}ms`,
+                animationDelay: intro ? `${900 + i * 100}ms` : undefined,
                 stroke: lit ? ACCENT : LINE,
                 strokeWidth: lit ? 1.5 : clamp(depth, 0.7, 1.1),
                 opacity: lit
@@ -224,8 +236,8 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
           return (
             <g
               key={node.id}
-              className="node-pop"
-              style={{ animationDelay: `${1100 + i * 90}ms` }}
+              className={intro ? "node-pop" : ""}
+              style={{ animationDelay: intro ? `${1100 + i * 90}ms` : undefined }}
               onMouseEnter={() => setHovered(node.id)}
               onMouseLeave={() => setHovered(null)}
             >
