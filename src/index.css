@@ -2,11 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global background color to prevent white flashes */
+/* Global background color to prevent flashes */
 html, body {
-    background-color: #030712 !important; /* gray-950 - very dark grey */
+    background-color: #FAF9F5 !important; /* bone — warm off-white */
+    color: #191918;
     margin: 0;
     padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay for atmosphere (very subtle) */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Elegant text selection */
+::selection {
+    background: #3538CD;
+    color: #FAF9F5;
+}
+
+/* Redesign: link underline style */
+.u-link {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    text-decoration-color: #C9C7BD;
+    transition: text-decoration-color 0.25s ease, color 0.25s ease;
+}
+.u-link:hover {
+    color: #3538CD;
+    text-decoration-color: #3538CD;
+}
+
+/* Scroll reveal (new) */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Smooth scrolling for the entire page */
@@ -382,22 +426,22 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: #1f2937;
+    background: #FAF9F5;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #06b6d4, #3b82f6, #8b5cf6);
+    background: #C9C7BD;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #0891b2, #2563eb, #7c3aed);
+    background: #3538CD;
 }
 
 /* Firefox scrollbar */
 * {
     scrollbar-width: thin;
-    scrollbar-color: #06b6d4 #1f2937;
+    scrollbar-color: #C9C7BD #FAF9F5;
 }
 
 /* Smooth transitions for all interactive elements */

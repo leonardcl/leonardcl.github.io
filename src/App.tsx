@@ -3,17 +3,15 @@ import './App.css';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import Navbar from './components/NavBar';
-import Home from './components/Home';
-import About from './components/About';
-import Education from './components/Education';
-import Publications from './components/Publications';
-import Projects from './components/Projects';
-import Career from './components/Career';
-import ContactMe from './components/Contact';
-import Footer from './components/Footer';
-import SectionTransition from './components/SectionTransition';
-import ScrollProgress from './components/ScrollProgress';
+import Nav from './components/v2/Nav';
+import Hero from './components/v2/Hero';
+import Now from './components/v2/Now';
+import Work from './components/v2/Work';
+import Experience from './components/v2/Experience';
+import PublicationsList from './components/v2/PublicationsList';
+import Writing from './components/v2/Writing';
+import Playground from './components/v2/Playground';
+import FooterV2 from './components/v2/FooterV2';
 
 function App() {
   const location = useLocation();
@@ -21,9 +19,8 @@ function App() {
 
   useEffect(() => {
     if (location.hash) {
-      const sectionId = location.hash.replace("#", ""); // Remove the `#`
+      const sectionId = location.hash.replace("#", "");
       navigate("/#/");
-      // const element = document.getElementById(sectionId);
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
@@ -37,33 +34,16 @@ function App() {
   }, [location]);
 
   return (
-    <div className="App bg-gray-950">
-      <ScrollProgress />
-      <Navbar />
-      <SectionTransition sectionId="home" direction="fade" delay={0}>
-        <Home />
-      </SectionTransition>
-      <SectionTransition sectionId="about" direction="up" delay={50}>
-        <About />
-      </SectionTransition>
-      <SectionTransition sectionId="career" direction="up" delay={100}>
-        <Career />
-      </SectionTransition>
-      <SectionTransition sectionId="education" direction="up" delay={150}>
-        <Education />
-      </SectionTransition>
-      <SectionTransition sectionId="publications" direction="up" delay={200}>
-        <Publications />
-      </SectionTransition>
-      <SectionTransition sectionId="projects" direction="up" delay={250}>
-        <Projects />
-      </SectionTransition>
-      <SectionTransition sectionId="contact" direction="up" delay={300}>
-        <ContactMe />
-      </SectionTransition>
-      <SectionTransition sectionId="footer" direction="fade" delay={350}>
-        <Footer />
-      </SectionTransition>
+    <div className="App bg-bone text-ink font-sans">
+      <Nav />
+      <Hero />
+      <Now />
+      <Work />
+      <Experience />
+      <PublicationsList />
+      <Writing />
+      <Playground />
+      <FooterV2 />
     </div>
   );
 }
