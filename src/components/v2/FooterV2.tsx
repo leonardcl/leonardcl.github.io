@@ -29,6 +29,28 @@ const FooterV2 = () => (
         >
           {site.email}
         </a>
+
+        <p className="mt-8 max-w-xl text-inkmuted leading-relaxed">
+          Have a product to ship? That's what my studio is for —{" "}
+          <a
+            href="https://projekinaja.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="u-link font-medium text-ink"
+          >
+            ProjekinAja
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://studio.projekinaja.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="u-link font-medium text-ink"
+          >
+            ProjekinAja Studio
+          </a>
+          .
+        </p>
       </Reveal>
 
       <div className="mt-20 pt-6 border-t border-line grid sm:grid-cols-3 gap-8">
