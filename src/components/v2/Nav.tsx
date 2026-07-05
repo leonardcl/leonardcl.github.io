@@ -34,7 +34,7 @@ const Nav = () => {
           className="font-display text-lg text-ink font-semibold tracking-tight"
           onClick={() => setOpen(false)}
         >
-          leonard<span className="text-accent">cl</span>
+          leonard<span className="text-accent">cl</span><span className="text-blush">.</span>
         </Link>
 
         {/* Desktop */}

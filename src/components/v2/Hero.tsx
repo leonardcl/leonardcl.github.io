@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { site } from "../../data/site";
-import OrbitSkills from "./OrbitSkills";
+import SkillList from "./SkillList";
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -100,9 +100,9 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* ── Right: the skill system ── */}
-        <div className="hidden lg:block rise-blur" style={{ animationDelay: "850ms" }}>
-          <OrbitSkills offset={offset} />
+        {/* ── Right: the skill list ── */}
+        <div className="hidden lg:block">
+          <SkillList offset={offset} />
         </div>
       </div>
 

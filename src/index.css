@@ -84,36 +84,6 @@ body::after {
     animation: blobDrift 18s ease-in-out infinite;
 }
 
-/* ── Soul: orbital skill system ── */
-@keyframes orbitSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-.orbit-spin {
-    animation: orbitSpin linear infinite;
-}
-/* Counter-rotation keeps labels upright while they orbit */
-.orbit-counter {
-    animation: orbitSpin linear infinite reverse;
-}
-.orbit-spin.reverse {
-    animation-direction: reverse;
-}
-.orbit-spin.reverse .orbit-counter {
-    animation-direction: normal;
-}
-/* Hovering anywhere on a ring group pauses that ring */
-.orbit-group:hover .orbit-spin,
-.orbit-group:hover .orbit-counter {
-    animation-play-state: paused;
-}
-@keyframes corePulse {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.35); opacity: 0.5; }
-}
-.core-pulse {
-    animation: corePulse 3.2s ease-in-out infinite;
-}
 
 /* ── Soul: animated timeline ── */
 .timeline-line {

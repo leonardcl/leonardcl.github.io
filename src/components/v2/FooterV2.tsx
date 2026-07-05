@@ -28,7 +28,7 @@ const FooterV2 = () => (
       <div className="mt-20 pt-6 border-t border-line grid sm:grid-cols-3 gap-8">
         <div>
           <span className="font-display text-ink font-semibold">
-            leonard<span className="text-accent">cl</span>
+            leonard<span className="text-accent">cl</span><span className="text-blush">.</span>
           </span>
           <p className="mt-2 font-mono text-[11px] text-inkmuted leading-relaxed">
             {site.motto[0].toLowerCase()}
