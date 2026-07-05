@@ -147,6 +147,31 @@ body::after {
     animation: dotBreathe 4s ease-in-out infinite;
 }
 
+/* ── Soul: blog page ── */
+@keyframes slowSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.slow-spin {
+    animation: slowSpin 14s linear infinite;
+}
+/* 3D tilt cards */
+.tilt-wrap {
+    perspective: 900px;
+}
+.tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.35s ease, border-color 0.35s ease;
+    will-change: transform;
+}
+.tilt-card .tilt-lift {
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tilt-card:hover .tilt-lift {
+    transform: translateZ(28px);
+}
+
 /* ── Soul: section title mask reveal ── */
 .title-mask {
     overflow: hidden;
