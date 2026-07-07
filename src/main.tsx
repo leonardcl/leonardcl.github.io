@@ -8,6 +8,8 @@ import NotFoundPage from './NotFoundPage.tsx';
 import RlFundamentalConcept1 from './components/markdown_blogs/1-rl-fundamentalconcept.tsx';
 import Blessed from './components/Blessed.tsx';
 import GradientDescentTool from './components/GradientDescentTool.tsx';
+import Boids from './components/Boids.tsx';
+import PixelCam from './components/PixelCam.tsx';
 import './index.css';
 
 const router = createHashRouter([
@@ -31,6 +33,14 @@ const router = createHashRouter([
   {
     path: "/gradient-descent",
     element: <GradientDescentTool />,
+  },
+  {
+    path: "/boids",
+    element: <Boids />,
+  },
+  {
+    path: "/pixel-cam",
+    element: <PixelCam />,
   },
 ]);
 

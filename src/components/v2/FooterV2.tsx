@@ -112,6 +112,18 @@ const FooterV2 = () => (
             gradient descent tool →
           </Link>
           <Link
+            to="/boids"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            boids swarm →
+          </Link>
+          <Link
+            to="/pixel-cam"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            pixel camera →
+          </Link>
+          <Link
             to="/blessed"
             className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >

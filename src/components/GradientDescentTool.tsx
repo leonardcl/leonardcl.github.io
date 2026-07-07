@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import Navbar from "./NavBar";
-import Footer from "./Footer";
+import Nav from "./v2/Nav";
+import FooterV2 from "./v2/FooterV2";
 
 export default function GradientDescentTool() {
   // Scroll to top when component mounts
@@ -134,12 +134,13 @@ export default function GradientDescentTool() {
     const scale = Math.max(1e-9, (hi - lo) / 2);
 
     const colormap = (t: number) => {
+      // site palette: bone → pale periwinkle → ultramarine → deep ink
       const stops = [
-        [68, 1, 84],
-        [59, 82, 139],
-        [33, 145, 140],
-        [94, 201, 98],
-        [253, 231, 37],
+        [250, 249, 245],
+        [225, 227, 250],
+        [163, 167, 244],
+        [53, 56, 205],
+        [30, 30, 64],
       ];
       const tt = Math.max(0, Math.min(1, t));
       const p = tt * (stops.length - 1);
@@ -191,14 +192,14 @@ export default function GradientDescentTool() {
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(heatRef.current, 0, 0, size, size);
     } else {
-      ctx.fillStyle = "#1f2937";
+      ctx.fillStyle = "#FAF9F5";
       ctx.fillRect(0, 0, size, size);
     }
 
     // Grid + axes
     const R = domain;
     ctx.save();
-    ctx.strokeStyle = "#374151";
+    ctx.strokeStyle = "rgba(25,25,24,0.08)";
     ctx.lineWidth = 1;
     const ticks = 8;
     for (let i = 1; i < ticks; i++) {
@@ -214,7 +215,7 @@ export default function GradientDescentTool() {
       ctx.stroke();
     }
     // axes at x=0, y=0
-    ctx.strokeStyle = "#0f172a";
+    ctx.strokeStyle = "rgba(25,25,24,0.35)";
     ctx.lineWidth = 1.25;
     const { px: x0 } = worldToCanvas(0, 0);
     const { py: y0 } = worldToCanvas(0, 0);
@@ -227,7 +228,7 @@ export default function GradientDescentTool() {
     if (P.length > 0) {
       ctx.save();
       ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "#06b6d4";
+      ctx.strokeStyle = "#D6336C";
       ctx.beginPath();
       const p0 = worldToCanvas(P[0].x, P[0].y);
       ctx.moveTo(p0.px, p0.py);
@@ -242,7 +243,7 @@ export default function GradientDescentTool() {
     // Current point
     const cx = simRef.current.x; const cy = simRef.current.y;
     const { px, py } = worldToCanvas(cx, cy);
-    ctx.fillStyle = "#06b6d4";
+    ctx.fillStyle = "#D6336C";
     ctx.beginPath();
     ctx.arc(px, py, 5, 0, Math.PI * 2);
     ctx.fill();
@@ -271,7 +272,7 @@ export default function GradientDescentTool() {
       if (mag > 1e-8) {
         const L = (size / (2 * R)) * 0.45;
         const ax = (vxw / mag) * L; const ay = (-vyw / mag) * L;
-        ctx.save(); ctx.strokeStyle = "#2563eb"; ctx.fillStyle = "#2563eb"; ctx.lineWidth = 2;
+        ctx.save(); ctx.strokeStyle = "#8A8FF2"; ctx.fillStyle = "#8A8FF2"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + ax, py + ay); ctx.stroke();
         const ang = Math.atan2(ay, ax), ah = 7;
         ctx.beginPath(); ctx.moveTo(px + ax, py + ay);
@@ -293,7 +294,7 @@ export default function GradientDescentTool() {
       if (mag > 1e-10) {
         const L = (size / (2 * R)) * 0.5;
         const ax = (vpx / mag) * L; const ay = (-vpy / mag) * L;
-        ctx.save(); ctx.strokeStyle = "#16a34a"; ctx.fillStyle = "#16a34a"; ctx.lineWidth = 2.25;
+        ctx.save(); ctx.strokeStyle = "#3538CD"; ctx.fillStyle = "#3538CD"; ctx.lineWidth = 2.25;
         ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + ax, py + ay); ctx.stroke();
         const ang = Math.atan2(ay, ax), ah = 7;
         ctx.beginPath(); ctx.moveTo(px + ax, py + ay);
@@ -319,7 +320,7 @@ export default function GradientDescentTool() {
       const s = { x: dragRef.current.startX, y: dragRef.current.startY };
       const h = hoverRef.current.has ? { x: hoverRef.current.x, y: hoverRef.current.y } : s;
       const sc = worldToCanvas(s.x, s.y); const hc = worldToCanvas(h.x, h.y);
-      ctx.save(); ctx.strokeStyle = "#2563eb"; ctx.fillStyle = "#2563eb"; ctx.lineWidth = 2;
+      ctx.save(); ctx.strokeStyle = "#3538CD"; ctx.fillStyle = "#3538CD"; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(sc.px, sc.py); ctx.lineTo(hc.px, hc.py); ctx.stroke();
       const ang = Math.atan2(hc.py - sc.py, hc.px - sc.px), ah = 7;
       ctx.beginPath(); ctx.moveTo(hc.px, hc.py);
@@ -527,95 +528,119 @@ export default function GradientDescentTool() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [funcKey]);
 
+  const btn =
+    "font-mono text-xs px-3 py-2 border border-line text-ink hover:border-accent hover:text-accent transition-colors bg-bone";
+  const sel =
+    "font-mono text-xs px-3 py-2 border border-line bg-bone text-ink hover:border-accent transition-colors cursor-pointer";
+
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <Navbar />
-      <div id="gradient-descent" className="p-10 mt-40 md:mt-20 md:p-40 text-white text-left">
-        <div className="group relative mb-16 animate-on-scroll animate-fade-in-up animate-delay-100">
-          <div className="absolute w-full py-1 bottom-0 inset-x-0 text-white text-4xl sm:text-5xl leading-4 font-semibold font-quicksand">
-            <span className="group">interactive optimization</span>
+    <div className="min-h-screen bg-bone text-ink font-sans">
+      <Nav />
+      <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
+        {/* Header — matches the site's section language */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3">
+            <span className="h-1.5 w-1.5 rotate-45 bg-blush" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-inkmuted">
+              playground · interactive optimization
+            </span>
+            <span className="h-px flex-1 bg-line" />
           </div>
-          <div className="group text-7xl font-bold font-sans sm:text-9xl">
-            <p className="">
-              <span className="text-gray-800 transition-all duration-400 ease-in-out hover:text-cyan-400 group-hover:text-cyan-400">Gradient Descent</span>
-            </p>
-          </div>
-        </div>
-        
-        <div className="mb-8 animate-on-scroll animate-fade-in-up animate-delay-200">
-          <p className="text-l sm:text-xl text-gray-400 p-2 text-wrap">
-            Interactive visualization of gradient descent optimization algorithms. 
-            Function: <span className="font-medium text-cyan-400">{spec.name}</span> 
-            <span className="text-gray-400">{spec.hint && ` – ${spec.hint}`}</span>
+          <h1 className="mt-4 font-display text-4xl sm:text-6xl text-ink font-medium leading-tight rise-blur">
+            Gradient <em className="font-light text-blush">Descent</em>
+          </h1>
+          <p className="mt-4 max-w-2xl text-inkmuted leading-relaxed">
+            Watch an optimizer find its way downhill. Function:{" "}
+            <span className="font-mono text-sm text-accent">{spec.name}</span>
+            {spec.hint && <span> — {spec.hint}</span>}
           </p>
         </div>
 
-                  <header className="flex flex-wrap items-center justify-between gap-3 mb-4 animate-on-scroll animate-fade-in-up animate-delay-300">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-cyan-400 mb-3">
-                Controls
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <select className="border border-gray-600 rounded-xl px-3 py-2 bg-gray-800 text-gray-100" value={funcKey} onChange={(e) => setFuncKey(e.target.value as any)}>
-                <option value="quadratic">Quadratic</option>
-                <option value="saddle">Saddle</option>
-                <option value="rosenbrock">Rosenbrock</option>
-              </select>
-              <select className="border border-gray-600 rounded-xl px-3 py-2 bg-gray-800 text-gray-100" value={direction} onChange={(e)=> setDirection(e.target.value as any)}>
-                <option value="descent">Descent (−∇f)</option>
-                <option value="ascent">Ascent (+∇f)</option>
-              </select>
-              <button className="px-3 py-2 rounded-xl bg-gray-800 text-gray-100 border border-gray-600 hover:bg-gray-700 transition-colors" onClick={() => resetToDefaults("soft")}>Reset</button>
-              <button className="px-3 py-2 rounded-xl border border-gray-600 bg-gray-800 text-gray-100 hover:bg-gray-700 transition-colors" onClick={() => setPlaying((p) => !p)}>{playing ? "Pause" : "Play"}</button>
-              <button className="px-3 py-2 rounded-xl border border-gray-600 bg-gray-800 text-gray-100 hover:bg-gray-700 transition-colors" onClick={() => { stepOnce(); draw(); }}>Step</button>
-            </div>
-          </header>
+        {/* Toolbar */}
+        <header className="flex flex-wrap items-center gap-2 mb-6">
+          <select className={sel} value={funcKey} onChange={(e) => setFuncKey(e.target.value as any)}>
+            <option value="quadratic">Quadratic</option>
+            <option value="saddle">Saddle</option>
+            <option value="rosenbrock">Rosenbrock</option>
+          </select>
+          <select className={sel} value={direction} onChange={(e) => setDirection(e.target.value as any)}>
+            <option value="descent">Descent (−∇f)</option>
+            <option value="ascent">Ascent (+∇f)</option>
+          </select>
+          <span className="flex-1" />
+          <button className={btn} onClick={() => resetToDefaults("soft")}>reset</button>
+          <button
+            className="font-mono text-xs px-4 py-2 border border-ink bg-ink text-bone hover:bg-accent hover:border-accent transition-colors"
+            onClick={() => setPlaying((p) => !p)}
+          >
+            {playing ? "pause" : "play ▸"}
+          </button>
+          <button className={btn} onClick={() => { stepOnce(); draw(); }}>step</button>
+        </header>
 
-                  <div className="grid md:grid-cols-3 gap-4 animate-on-scroll animate-fade-in-up animate-delay-400">
-                      {/* Canvas */}
-            <div ref={wrapRef} className="md:col-span-2 bg-gray-800 rounded-2xl border border-gray-600 p-3 overflow-hidden animate-on-scroll animate-fade-in-up animate-delay-500">
-            <canvas ref={canvasRef} className="block rounded-xl border border-gray-600" />
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-300">
-              <div><span className="text-gray-400">f(x,y): </span><b className="text-cyan-400">{fVal.toFixed(6)}</b></div>
-              <div><span className="text-gray-400">‖∇f‖: </span><b className="text-cyan-400">{gradNorm.toExponential(3)}</b></div>
-              <div><span className="text-gray-400">x: </span><b className="text-cyan-400">{point.x.toFixed(4)}</b></div>
-              <div><span className="text-gray-400">y: </span><b className="text-cyan-400">{point.y.toFixed(4)}</b></div>
-              <div><span className="text-gray-400">iter: </span><b className="text-cyan-400">{iter}</b></div>
-              <div><span className={`px-2 py-0.5 rounded-full text-xs ${status.startsWith("done") ? "bg-emerald-900 text-emerald-300" : status.startsWith("stopped") ? "bg-red-900 text-red-300" : status === "running" ? "bg-blue-900 text-blue-300" : "bg-gray-700 text-gray-300"}`}>{status}</span></div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Canvas */}
+          <div ref={wrapRef} className="md:col-span-2 border border-line p-3 overflow-hidden bg-bone">
+            <canvas ref={canvasRef} className="block border border-line max-w-full" />
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono text-xs text-inkmuted">
+              <div>f(x,y) <b className="text-accent">{fVal.toFixed(6)}</b></div>
+              <div>‖∇f‖ <b className="text-accent">{gradNorm.toExponential(3)}</b></div>
+              <div>iter <b className="text-accent">{iter}</b></div>
+              <div>x <b className="text-ink">{point.x.toFixed(4)}</b></div>
+              <div>y <b className="text-ink">{point.y.toFixed(4)}</b></div>
+              <div>
+                <span
+                  className={`px-2 py-0.5 border text-[11px] ${
+                    status.startsWith("done")
+                      ? "border-accent text-accent"
+                      : status.startsWith("stopped")
+                      ? "border-blush text-blush"
+                      : "border-line text-inkmuted"
+                  }`}
+                >
+                  {status}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="bg-gray-800 rounded-2xl border border-gray-600 p-4 animate-on-scroll animate-fade-in-up animate-delay-500">
-            <h2 className="font-semibold mb-3 text-cyan-400">Parameters</h2>
+          {/* Parameters */}
+          <div className="border border-line p-5 bg-bone">
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-inkmuted mb-4">
+              parameters
+            </p>
 
-            <div className="space-y-3">
-              <Range label={`Learning rate η = ${lr.toFixed(3)}`} min={0.001} max={0.2} step={0.001} value={lr} setValue={setLr} />
-              <Range label={`Momentum β = ${momentum.toFixed(2)}`} min={0} max={0.99} step={0.01} value={momentum} setValue={setMomentum} />
+            <div className="space-y-4">
+              <Range label={`learning rate η = ${lr.toFixed(3)}`} min={0.001} max={0.2} step={0.001} value={lr} setValue={setLr} />
+              <Range label={`momentum β = ${momentum.toFixed(2)}`} min={0} max={0.99} step={0.01} value={momentum} setValue={setMomentum} />
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm text-gray-300">Nesterov</label>
-                <input type="checkbox" checked={nesterov} onChange={(e) => setNesterov(e.target.checked)} className="rounded" />
+                <label className="font-mono text-xs text-inkmuted">nesterov</label>
+                <input type="checkbox" checked={nesterov} onChange={(e) => setNesterov(e.target.checked)} className="accent-[#3538CD]" />
               </div>
-              <Range label={`Noise (σ) = ${noise.toFixed(3)}`} min={0} max={0.08} step={0.001} value={noise} setValue={setNoise} />
-              <Range label={`Domain R = ${domain.toFixed(2)}`} min={1.2} max={4} step={0.1} value={domain} setValue={(v)=>{ setDomain(v); draw(); }} />
-              <Range label={`Play speed = ${playSpeed} steps/s`} min={1} max={120} step={1} value={playSpeed} setValue={setPlaySpeed} />
-              <Range label={`Max iterations = ${maxIter}`} min={50} max={5000} step={10} value={maxIter} setValue={setMaxIter} />
+              <Range label={`noise σ = ${noise.toFixed(3)}`} min={0} max={0.08} step={0.001} value={noise} setValue={setNoise} />
+              <Range label={`domain R = ${domain.toFixed(2)}`} min={1.2} max={4} step={0.1} value={domain} setValue={(v) => { setDomain(v); draw(); }} />
+              <Range label={`speed = ${playSpeed} steps/s`} min={1} max={120} step={1} value={playSpeed} setValue={setPlaySpeed} />
+              <Range label={`max iters = ${maxIter}`} min={50} max={5000} step={10} value={maxIter} setValue={setMaxIter} />
               <div className="flex items-center justify-between gap-2">
-                <label className="text-sm text-gray-300">Show gradient arrow</label>
-                <input type="checkbox" checked={showGrad} onChange={(e) => { setShowGrad(e.target.checked); draw(); }} className="rounded" />
+                <label className="font-mono text-xs text-inkmuted">gradient arrow</label>
+                <input type="checkbox" checked={showGrad} onChange={(e) => { setShowGrad(e.target.checked); draw(); }} className="accent-[#3538CD]" />
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-gray-400 space-y-1">
-              <p>Arrows: <span className='font-medium text-gray-300'>gray</span> = gradient (±∇f), <span className='font-medium text-green-400'>green</span> = next update step (η, β, Nesterov, ascent/descent), <span className='font-medium text-blue-400'>blue</span> = initial velocity (if set via Shift+drag).</p>
-              <p>Tip: For <b>Rosenbrock</b>, start near (−1.2, 1.0) and use a small η (e.g., 0.003–0.01).</p>
-              <p>Click to set a start point. <b>Shift+drag</b> from a point to set an <i>initial velocity</i>. Hover shows precise coordinates.</p>
+            <div className="mt-5 pt-4 border-t border-line text-xs text-inkmuted space-y-1.5 leading-relaxed">
+              <p>
+                Arrows: <span className="font-medium text-ink">ink</span> = gradient (±∇f),{" "}
+                <span className="font-medium text-accent">blue</span> = next update step,{" "}
+                <span className="font-medium" style={{ color: "#8A8FF2" }}>periwinkle</span> = initial velocity. Path & point in{" "}
+                <span className="font-medium text-blush">blush</span>.
+              </p>
+              <p>Tip: for <b>Rosenbrock</b>, start near (−1.2, 1.0) with a small η (0.003–0.01).</p>
+              <p>Click to set a start point. <b>Shift+drag</b> to set an initial velocity. Hover for coordinates.</p>
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
+      </main>
+      <FooterV2 />
     </div>
   );
 }
@@ -623,7 +648,7 @@ export default function GradientDescentTool() {
 function Range({ label, min, max, step, value, setValue }: { label: string; min: number; max: number; step?: number; value: number; setValue: (v: number) => void; }) {
   return (
     <div>
-      <div className="flex items-center justify-between text-sm text-gray-300 mb-1">
+      <div className="flex items-center justify-between font-mono text-xs text-inkmuted mb-1.5">
         <span>{label}</span>
       </div>
       <input
@@ -633,9 +658,9 @@ function Range({ label, min, max, step, value, setValue }: { label: string; min:
         step={step ?? 1}
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        className="w-full bg-gray-700 rounded-lg appearance-none cursor-pointer"
+        className="w-full h-[3px] rounded-full appearance-none cursor-pointer accent-[#3538CD]"
         style={{
-          background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${((value - min) / (max - min)) * 100}%, #374151 ${((value - min) / (max - min)) * 100}%, #374151 100%)`
+          background: `linear-gradient(to right, #3538CD 0%, #3538CD ${((value - min) / (max - min)) * 100}%, #E6E4DC ${((value - min) / (max - min)) * 100}%, #E6E4DC 100%)`,
         }}
       />
     </div>
