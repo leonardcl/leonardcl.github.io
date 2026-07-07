@@ -1,0 +1,7 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- leonardcl. — bone tile, ink serif monogram, blush period -->
+  <rect width="64" height="64" rx="14" fill="#FAF9F5"/>
+  <rect x="0.5" y="0.5" width="63" height="63" rx="13.5" stroke="#191918" stroke-opacity="0.08"/>
+  <text x="28" y="45" font-family="Georgia, 'Iowan Old Style', 'Times New Roman', serif" font-style="italic" font-weight="600" font-size="36" text-anchor="middle" fill="#191918">lc</text>
+  <circle cx="50" cy="42" r="5" fill="#D6336C"/>
+</svg>
