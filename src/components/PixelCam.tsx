@@ -24,8 +24,9 @@ export default function PixelCam() {
   const [pixelSize, setPixelSize] = useState(12);
   const [mode, setMode] = useState<"squares" | "digits" | "mixed">("mixed");
   const [invert, setInvert] = useState(false);
-  const opts = useRef({ pixelSize, mode, invert });
-  opts.current = { pixelSize, mode, invert };
+  const [digitRatio, setDigitRatio] = useState(75); // % of cells drawn as digits in mixed mode
+  const opts = useRef({ pixelSize, mode, invert, digitRatio });
+  opts.current = { pixelSize, mode, invert, digitRatio };
 
   const start = async () => {
     setError(null);
@@ -66,7 +67,7 @@ export default function PixelCam() {
     let raf = 0;
 
     const tick = () => {
-      const { pixelSize, mode, invert } = opts.current;
+      const { pixelSize, mode, invert, digitRatio } = opts.current;
       const w = wrap.clientWidth - 2;
       const h = Math.floor((w * 3) / 4);
       if (canvas.width !== w) { canvas.width = w; canvas.height = h; }
@@ -103,7 +104,7 @@ export default function PixelCam() {
             dark > 0.78 ? "#191918" : dark > 0.55 ? "#3538CD" : dark > 0.35 ? "#8A8FF2" : "#C9CCF8";
           const seed = ((r * 73856093) ^ (c * 19349663)) >>> 0;
           const asDigit =
-            mode === "digits" ? true : mode === "squares" ? false : seed % 3 !== 0;
+            mode === "digits" ? true : mode === "squares" ? false : seed % 100 < digitRatio;
           ctx.fillStyle = seed % 61 === 0 ? "#D6336C" : tone; // rare blush bit
           if (asDigit) {
             ctx.fillText(String(seed % 2), c * cw + cw / 2, r * ch + ch / 2);
@@ -196,6 +197,17 @@ export default function PixelCam() {
                   </button>
                 ))}
               </div>
+              {mode === "mixed" && (
+                <div>
+                  <div className="font-mono text-xs text-inkmuted mb-1.5">{`digits = ${digitRatio}% · squares = ${100 - digitRatio}%`}</div>
+                  <input
+                    type="range" min={0} max={100} step={5} value={digitRatio}
+                    onChange={(e) => setDigitRatio(Number(e.target.value))}
+                    className="w-full h-[3px] rounded-full appearance-none cursor-pointer accent-[#3538CD]"
+                    style={{ background: `linear-gradient(to right, #3538CD 0%, #3538CD ${digitRatio}%, #E6E4DC ${digitRatio}%, #E6E4DC 100%)` }}
+                  />
+                </div>
+              )}
               <div className="flex items-center justify-between gap-2">
                 <label className="font-mono text-xs text-inkmuted">invert</label>
                 <input type="checkbox" checked={invert} onChange={(e) => setInvert(e.target.checked)} className="accent-[#3538CD]" />
