@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from './NavBar';
+import Nav from './v2/Nav';
+import FooterV2 from './v2/FooterV2';
 
 interface BibleVerse {
   reference: string;
@@ -320,10 +321,12 @@ const Blessed: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-400 mx-auto mb-4"></div>
-          <p className="text-lg">Loading blessed verse...</p>
+      <div className="min-h-screen bg-bone flex items-center justify-center">
+        <div className="text-center">
+          <span className="inline-block h-2.5 w-2.5 rotate-45 bg-blush animate-ping" />
+          <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-inkmuted">
+            finding a blessing…
+          </p>
         </div>
       </div>
     );
@@ -331,14 +334,14 @@ const Blessed: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-white text-center">
-          <p className="text-lg mb-4">Error loading verse: {error}</p>
+      <div className="min-h-screen bg-bone flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-mono text-sm text-blush mb-6">couldn't load a verse: {error}</p>
           <button
             onClick={fetchRandomVerse}
-            className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-lg transition-colors"
+            className="font-mono text-xs px-5 py-2.5 border border-ink bg-ink text-bone hover:bg-accent hover:border-accent transition-colors"
           >
-            Try Again
+            try again
           </button>
         </div>
       </div>
@@ -346,67 +349,62 @@ const Blessed: React.FC = () => {
   }
 
   return (
-    <div className="App bg-gray-950">
-      <Navbar />
-      <div id="blessed" className="min-h-screen w-full font-quicksand">
-        <div className="flex flex-col items-center justify-center min-h-screen p-10 pt-40 md:pt-40 pb-40 md:p-40 md:pb-40">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-5xl xs:text-7xl sm:text-8xl font-bold text-gray-100 font-sans mb-4">
-              <span className="text-cyan-400">B</span>lessed
-            </h1>
-            <p className="text-xl text-gray-400 font-sans font-quicksand">
-              A random Bible verse to bless your day
-            </p>
+    <div className="min-h-screen bg-bone text-ink font-sans flex flex-col">
+      <Nav />
+      <main className="relative flex-1 flex items-center justify-center overflow-hidden">
+        {/* quiet ambient color */}
+        <div className="blob w-[420px] h-[420px] -top-24 -right-28 bg-blush/10" />
+        <div className="blob w-[360px] h-[360px] bottom-0 -left-32 bg-accent/10" style={{ animationDelay: "-8s" }} />
+
+        <div className="relative max-w-3xl mx-auto px-6 sm:px-10 pt-36 pb-24 text-center">
+          <div className="flex items-center justify-center gap-3 rise-blur" style={{ animationDelay: "100ms" }}>
+            <span className="h-1.5 w-1.5 rotate-45 bg-blush" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-inkmuted">
+              a verse to bless your day
+            </span>
+            <span className="h-1.5 w-1.5 rotate-45 bg-blush" />
           </div>
 
-          {/* Verse Display */}
+          <h1
+            className="mt-4 font-display text-5xl sm:text-7xl text-ink font-medium rise-blur"
+            style={{ animationDelay: "200ms" }}
+          >
+            Bles<em className="font-light text-blush">sed</em>
+          </h1>
+
           {verse && (
-            <div className="bg-gray-900 rounded-2xl p-8 md:p-12 mb-8 border border-gray-800">
-              <div className="mb-6">
-                <h2 className={`text-2xl md:text-3xl font-semibold mb-4 ${
-                  verseColor === 'pink' ? 'text-pink-400' : 'text-blue-400'
-                }`}>
-                  {verse.reference}
-                </h2>
-                <p className={`text-lg md:text-xl leading-relaxed ${
-                  verseColor === 'pink' ? 'text-pink-300' : 'text-blue-300'
-                }`}>
-                  "{verse.text}"
-                </p>
-              </div>
-              
-              <div className="text-sm text-gray-400">
-                {verse.translation_name}
-              </div>
+            <div className="mt-14 rise-blur" style={{ animationDelay: "350ms" }}>
+              <p
+                className={`font-mono text-xs uppercase tracking-[0.25em] ${
+                  verseColor === 'pink' ? 'text-blush' : 'text-accent'
+                }`}
+              >
+                {verse.reference}
+              </p>
+              <blockquote className="mt-8 font-display italic font-light text-2xl sm:text-[2rem] leading-relaxed text-ink/90">
+                <span className={verseColor === 'pink' ? 'text-blush' : 'text-accent'}>“</span>
+                {verse.text}
+                <span className={verseColor === 'pink' ? 'text-blush' : 'text-accent'}>”</span>
+              </blockquote>
+              <p className="mt-8 font-mono text-[11px] text-inkmuted">{verse.translation_name}</p>
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="space-y-4">
+          <div className="mt-14 rise-blur" style={{ animationDelay: "500ms" }}>
             <button
               onClick={handleNewVerse}
-              className="bg-inhirit tracking-[.40em] text-gray-200 px-6 py-3 mt-4 hover:bg-cyan-400 border-b-2 border-cyan-400 hover:font-semibold transition-all duration-250 ease-in-out bg-inhirit group"
+              className="font-mono text-xs uppercase tracking-[0.2em] px-6 py-3 border border-ink bg-ink text-bone hover:bg-blush hover:border-blush transition-colors"
             >
-              <span className="w-full text-left transition-colors duration-150 ease-in-out group-hover:text-gray-800">
-                GET ANOTHER VERSE
-              </span>
+              another verse ✳
             </button>
-            
-            <div className="text-gray-400 text-sm mt-4">
-              <p>Click to receive a new blessing</p>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-16 text-gray-500 text-sm">
-            <p>May these words bring peace and encouragement to your heart</p>
+            <p className="mt-10 text-sm text-inkmuted italic font-display">
+              May these words bring peace and encouragement to your heart.
+            </p>
           </div>
         </div>
-      </div>
+      </main>
+      <FooterV2 />
     </div>
-  </div>
   );
 };
 
