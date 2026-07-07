@@ -221,7 +221,7 @@ body::after {
 
 /* ── Soul: realistic hand + pixel-dissolve effect (footer) ── */
 .hand-emoji {
-    font-size: 210px;
+    font-size: 180px;
     /* duotone into the site palette: deep ink-ultramarine, print-illustration feel.
        Slightly lifted brightness + soft contrast so it sits on the bone paper
        like the section icons do — graphic, not photographic. */
@@ -261,6 +261,16 @@ body::after {
     /* electric-blue copy */
     filter: grayscale(1) sepia(1) hue-rotate(200deg) saturate(4) brightness(0.9) contrast(1.15);
     opacity: 0;
+}
+
+/* the hand waves gently from the wrist */
+@keyframes handWave {
+    0%, 100% { transform: translateX(-54%) rotate(-3deg); }
+    50% { transform: translateX(-54%) rotate(3.5deg); }
+}
+.hand-wave {
+    transform-origin: 62% 96%;
+    animation: handWave 4.2s ease-in-out infinite;
 }
 
 /* binary bits shimmering on the hand's surface */

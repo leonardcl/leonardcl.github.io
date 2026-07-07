@@ -13,7 +13,7 @@ const BLUSH = "#D6336C";
 
 const R = 58; // globe radius
 const GX = 150; // globe center
-const GY = 112;
+const GY = 126;
 const TILT = 0.32; // fixed axial tilt
 
 // Point sphere: latitude rings every 20°, longitude every 18° (faint ocean grid)
@@ -249,11 +249,11 @@ const HandGlobe = () => {
       </svg>
 
       {/* ── The hand — real artwork first; pixels are just an effect ── */}
-      <div className="hand-breathe pointer-events-none absolute inset-x-0 bottom-0 h-[52%]">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%]">
         {/* realistic hand, duotone-tinted, mirrored — with a digit overlay */}
         <div
-          className="absolute left-1/2 bottom-0"
-          style={{ width: 210, height: 210, transform: "translateX(-54%)" }}
+          className="hand-wave absolute left-1/2 bottom-0"
+          style={{ width: 180, height: 180 }}
         >
           <span
             className="hand-emoji block leading-none"
