@@ -150,7 +150,7 @@ const HandGlobe = () => {
   const land = landPoints.map(project);
 
   return (
-    <div className="hand-globe relative w-full max-w-[460px] mx-auto select-none" aria-hidden>
+    <div className="hand-globe relative w-full max-w-[360px] mx-auto select-none" aria-hidden>
       <svg viewBox="0 0 320 300" className="w-full overflow-visible">
         <defs>
           <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
