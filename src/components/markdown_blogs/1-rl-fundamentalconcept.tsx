@@ -24,6 +24,7 @@ const RlFundamentalConcept1 = () => {
     const [markdown, setMarkdown] = useState("");
 
     useEffect(() => {
+        window.scrollTo({ top: 0 });
         fetch("/1-rl-fundamental/article_rl.md")
         .then((response) => response.text())
         .then((text) => setMarkdown(text));

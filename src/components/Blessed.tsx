@@ -312,6 +312,7 @@ const Blessed: React.FC = () => {
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0 });
     fetchRandomVerse();
   }, []);
 
