@@ -1,6 +1,6 @@
 import './App.css'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from './components/v2/Nav'
 import FooterV2 from './components/v2/FooterV2'
@@ -70,6 +70,11 @@ const TiltCard = ({ post, index }: { post: (typeof posts)[0]; index: number }) =
 }
 
 function Blog() {
+  // land at the top when navigating here
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, []);
+
   return (
     <div className="App bg-bone text-ink font-sans min-h-screen flex flex-col overflow-x-hidden">
       <Nav />
