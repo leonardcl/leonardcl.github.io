@@ -38,7 +38,7 @@ const RlFundamentalConcept1 = () => {
                     </span>
                 </div>
 
-                <article className={`mt-6 ${style.reactMarkDown} markdown`}>
+                <article className={`mt-6 ${style.reactMarkDown}`}>
                     <ReactMarkdown
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeHighlight, rehypeRaw, rehypeKatex]}

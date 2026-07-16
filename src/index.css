@@ -797,10 +797,6 @@ html {
     transition-duration: 150ms;
 }
 
-.markdown > * {
-    all: revert;
-}
-
 /* Respect prefers-reduced-motion: keep the entrance states resolved
    (content stays visible) and stop decorative loops from running. */
 @media (prefers-reduced-motion: reduce) {
