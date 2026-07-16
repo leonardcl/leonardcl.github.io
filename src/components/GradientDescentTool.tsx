@@ -8,11 +8,24 @@ export default function GradientDescentTool() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Canvas & sizing
+  // Canvas & sizing — responsive: fits the wrapper's width (capped at 600),
+  // so the square canvas doesn't get squished/clipped on narrow screens.
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const heatRef = useRef<HTMLCanvasElement | null>(null);
-  const [size] = useState(600);
+  const [size, setSize] = useState(600);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const measure = () => {
+      const available = wrap.clientWidth - 24 /* p-3 padding */ - 2 /* canvas border */;
+      setSize(Math.max(260, Math.min(600, available)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   // Controls
   const [funcKey, setFuncKey] = useState<"quadratic" | "saddle" | "rosenbrock">("quadratic");
@@ -394,7 +407,7 @@ export default function GradientDescentTool() {
       cnv.removeEventListener('pointerdown', onPointerDown);
       cnv.removeEventListener('pointerup', onPointerUp);
     };
-  }, [domain]);
+  }, [domain, size]);
 
   // One optimization step (reads/writes simRef to avoid stale closures)
   const stepOnce = () => {

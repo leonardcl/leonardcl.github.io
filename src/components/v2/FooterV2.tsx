@@ -132,9 +132,17 @@ const FooterV2 = () => (
         </div>
       </div>
 
-      <p className="mt-12 font-mono text-[11px] text-inkmuted">
-        © {new Date().getFullYear()} Leonard Christopher
-      </p>
+      <div className="mt-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <p className="font-mono text-[11px] text-inkmuted">
+          © {new Date().getFullYear()} Leonard Christopher
+        </p>
+        <p
+          className="font-display text-base text-ink/70 tracking-[0.35em] cursor-default hover:text-ink transition-colors"
+          title="悟 awaken · 修 cultivate · 成 accomplish"
+        >
+          悟 <span className="text-blush">·</span> 修 <span className="text-blush">·</span> 成
+        </p>
+      </div>
     </div>
   </footer>
 );
