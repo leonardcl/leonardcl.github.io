@@ -1,11 +1,45 @@
 .reactMarkDown {
-    line-height: 2;
-    color: rgb(250, 250, 237);
+    line-height: 1.85;
+    color: #191918;
+    font-size: 1.0625rem;
 }
 .reactMarkDown h1 {
-    font-size: 2.25em;
-    margin: 0.67em 0;
-    /* color: rgb(245, 182, 226); */
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 2.5em;
+    line-height: 1.1;
+    margin: 0 0 0.4em;
+    color: #191918;
+}
+.reactMarkDown h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 1.75em;
+    line-height: 1.2;
+    margin: 1.4em 0 0.5em;
+    color: #191918;
+}
+.reactMarkDown h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 1.35em;
+    margin: 1.2em 0 0.5em;
+    color: #191918;
+}
+
+.reactMarkDown p {
+    margin: 1em 0;
+    color: #191918;
+}
+
+.reactMarkDown a {
+    color: #3538CD;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+.reactMarkDown a:hover {
+    color: #D6336C;
 }
 
 .reactMarkDown ul {
@@ -15,33 +49,52 @@
 }
 
 .reactMarkDown ul li {
-    margin-left: 2em;
+    margin-left: 1.5em;
     display: list-item;
     text-align: -webkit-match-parent;
 }
-.reactMarkDown strong {
-    /* font-size: 14px; */
-    /* font-weight: 400; */
-    /* white-space: pre-wrap; */
-    color: rgb(56, 192, 226);
-}
-
+.reactMarkDown strong,
 .reactMarkDown b {
-    /* font-size: 14px; */
-    /* font-weight: 400; */
-    /* white-space: pre-wrap; */
-    font-size: 1.2em;
-    color: aqua;
+    font-weight: 600;
+    color: #3538CD;
 }
 
 .reactMarkDown blockquote {
-    /* background: #f9f9f9; */
-    border-left: 2px solid #ccc;
-    padding: 0em 0em 0em 1em;
+    border-left: 2px solid #D6336C;
+    padding: 0.2em 0 0.2em 1em;
+    color: #6B6A64;
+    font-style: italic;
+    margin: 1.2em 0;
 }
 
 .reactMarkDown img {
-    max-width: 25em;
+    max-width: 32em;
     width: 90%;
     height: auto;
+    border: 1px solid #E6E4DC;
+}
+
+.reactMarkDown code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9em;
+    background: #F0EFE9;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+}
+
+.reactMarkDown pre {
+    background: #F0EFE9 !important;
+    border: 1px solid #E6E4DC;
+    padding: 1em;
+    overflow-x: auto;
+}
+.reactMarkDown pre code {
+    background: none;
+    padding: 0;
+}
+
+.reactMarkDown hr {
+    border: none;
+    border-top: 1px solid #E6E4DC;
+    margin: 2em 0;
 }
