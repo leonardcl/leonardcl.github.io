@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { IconBike } from "./Icons";
 
 /**
  * The reward signal — a hidden nod to reinforcement learning, live on the
@@ -84,14 +85,15 @@ const RewardSignal = () => {
         {/* the path */}
         <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-line" />
 
-        {/* the agent */}
-        <div
-          className="reward-agent absolute top-1/2 h-3.5 w-3.5 rounded-full"
-          style={{
-            backgroundColor: "#3538CD",
-            boxShadow: "0 0 14px rgba(53,56,205,0.55)",
-          }}
-        />
+        {/* the agent — an actual bicycle, straight out of the RL post */}
+        <div className="reward-agent absolute top-1/2 h-8 w-8">
+          <div className="reward-bob h-full w-full">
+            <IconBike
+              className="h-full w-full text-accent"
+              style={{ filter: "drop-shadow(0 0 5px rgba(53,56,205,0.5))" }}
+            />
+          </div>
+        </div>
 
         {/* reward signals along the way */}
         {SIGNALS.map((s, i) => (

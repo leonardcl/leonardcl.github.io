@@ -2,8 +2,9 @@
  * Hand-drawn line icons — 24×24, stroke-based, inherit currentColor.
  * One symbol per section / expertise domain.
  */
+import type { CSSProperties } from "react";
 
-type IconProps = { className?: string };
+type IconProps = { className?: string; style?: CSSProperties };
 
 const base = {
   fill: "none",
@@ -103,5 +104,15 @@ export const IconPlane = ({ className = "" }: IconProps) => (
   <svg viewBox="0 0 24 24" className={className} {...base}>
     <path d="M21 3 3.8 10.3c-.9.4-.8 1.6.1 1.9l6 2 2 6c.3.9 1.5 1 1.9.1L21 3Z" />
     <path d="M21 3 10 14.2" />
+  </svg>
+);
+
+/** The reward signal — a bicycle, the exact example from the RL post */
+export const IconBike = ({ className = "", style }: IconProps) => (
+  <svg viewBox="0 0 24 24" className={className} style={style} {...base}>
+    <circle cx="5.5" cy="17.5" r="3.5" />
+    <circle cx="18.5" cy="17.5" r="3.5" />
+    <circle cx="15" cy="5" r="1" fill="currentColor" stroke="none" />
+    <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
   </svg>
 );

@@ -249,6 +249,15 @@ body::after {
 .reward-agent {
     animation: rewardTravel 6s cubic-bezier(0.45, 0, 0.4, 1) forwards;
 }
+/* a small pedaling rock, layered independently on the bike itself */
+@keyframes bikeBob {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(3deg) translateY(-1px); }
+}
+.reward-bob {
+    animation: bikeBob 0.42s ease-in-out infinite;
+    transform-origin: 50% 85%;
+}
 .reward-pop {
     opacity: 0;
     animation: pixelRise 1.7s ease-out forwards;
