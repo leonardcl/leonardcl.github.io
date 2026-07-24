@@ -10,6 +10,7 @@ import Blessed from './components/Blessed.tsx';
 import GradientDescentTool from './components/GradientDescentTool.tsx';
 import Boids from './components/Boids.tsx';
 import PixelCam from './components/PixelCam.tsx';
+import RewardSignal from './components/v2/RewardSignal.tsx';
 import './index.css';
 
 const router = createHashRouter([
@@ -49,6 +50,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     {/* <HashRouter> */}
       <RouterProvider router={router} />
     {/* </HashRouter> */}
-    
+    {/* Mounted once, globally — listens on every page for the reward signal. */}
+    <RewardSignal />
   </React.StrictMode>
 );

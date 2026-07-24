@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { site } from "../../data/site";
 
@@ -14,6 +14,19 @@ const links = [
 const Nav = () => {
   const [open, setOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const brandClicks = useRef<number[]>([]);
+
+  // Five quick clicks on the brand mark → the reward signal (a hidden nod
+  // to RL, findable without a keyboard — the Konami code is the other way).
+  const onBrandClick = () => {
+    const now = Date.now();
+    const recent = [...brandClicks.current, now].filter((t) => now - t < 1200);
+    brandClicks.current = recent;
+    if (recent.length >= 5) {
+      brandClicks.current = [];
+      window.dispatchEvent(new Event("rl-easter-egg"));
+    }
+  };
 
   // Thin reading-progress line under the nav
   useEffect(() => {
@@ -33,7 +46,10 @@ const Nav = () => {
         <Link
           to="/"
           className="font-display text-lg text-ink font-semibold tracking-tight"
-          onClick={() => setOpen(false)}
+          onClick={() => {
+            setOpen(false);
+            onBrandClick();
+          }}
         >
           leonard<span className="text-accent">cl</span><span className="text-blush">.</span>
         </Link>
