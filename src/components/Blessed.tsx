@@ -322,7 +322,7 @@ const Blessed: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bone flex items-center justify-center">
+      <div className="min-h-screen min-h-dvh bg-bone flex items-center justify-center">
         <div className="text-center">
           <span className="inline-block h-2.5 w-2.5 rotate-45 bg-blush animate-ping" />
           <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-inkmuted">
@@ -335,7 +335,7 @@ const Blessed: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-bone flex items-center justify-center">
+      <div className="min-h-screen min-h-dvh bg-bone flex items-center justify-center">
         <div className="text-center">
           <p className="font-mono text-sm text-blush mb-6">couldn't load a verse: {error}</p>
           <button
@@ -350,7 +350,7 @@ const Blessed: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bone text-ink font-sans flex flex-col">
+    <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans flex flex-col">
       <Nav />
       <main className="relative flex-1 flex items-center justify-center overflow-hidden">
         {/* quiet ambient color */}

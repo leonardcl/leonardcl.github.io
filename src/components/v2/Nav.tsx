@@ -73,9 +73,9 @@ const Nav = () => {
           </a>
         </div>
 
-        {/* Mobile toggle */}
+        {/* Mobile toggle — sized to a comfortable ~44px tap target */}
         <button
-          className="md:hidden font-mono text-xs text-ink px-3 py-1.5 border border-line"
+          className="md:hidden font-mono text-xs text-ink px-4 py-2.5 border border-line"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -89,20 +89,24 @@ const Nav = () => {
         style={{ width: `${progress}%` }}
       />
 
-      {/* Mobile menu */}
+      {/* Mobile menu — full-width rows with real padding, each a proper
+          tap target rather than inline text with gaps between */}
       {open && (
-        <div className="md:hidden border-t border-line bg-bone px-6 py-5 flex flex-col gap-4">
+        <div className="md:hidden border-t border-line bg-bone px-6 flex flex-col">
           {links.map((l) => (
             <Link
               key={l.label}
               to={l.to}
               onClick={() => setOpen(false)}
-              className="font-mono text-sm text-inkmuted hover:text-ink"
+              className="font-mono text-sm text-inkmuted hover:text-ink py-3.5 border-b border-line/60"
             >
               {l.label}
             </Link>
           ))}
-          <a href={`mailto:${site.email}`} className="font-mono text-sm text-accent">
+          <a
+            href={`mailto:${site.email}`}
+            className="font-mono text-sm text-accent py-3.5"
+          >
             contact →
           </a>
         </div>

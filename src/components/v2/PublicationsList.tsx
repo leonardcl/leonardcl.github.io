@@ -14,8 +14,16 @@ const PublicationsList = () => {
           lastYear = pub.year;
           const inner = (
             <div className="grid sm:grid-cols-[150px_minmax(0,1fr)] gap-1 sm:gap-10 py-7 border-b border-line">
-              <span className="font-mono text-xs text-accent pt-1">
-                {showYear ? pub.year : ""}
+              {/* On mobile the grid collapses to one column — an empty year
+                  cell would still render as a blank row, so it's dropped
+                  from the layout entirely when there's nothing to show.
+                  At sm+ it stays present (even empty) to hold the column. */}
+              <span
+                className={`font-mono text-xs text-accent pt-1 ${
+                  showYear ? "block" : "hidden sm:block"
+                }`}
+              >
+                {pub.year}
               </span>
               <div>
                 <h3 className="font-display text-lg sm:text-xl text-ink leading-snug group-hover:text-accent transition-colors">

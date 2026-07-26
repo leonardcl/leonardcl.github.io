@@ -81,7 +81,7 @@ const RewardSignal = () => {
       style={{ bottom: "20%" }}
       aria-hidden
     >
-      <div className="relative max-w-3xl mx-auto px-10 h-8">
+      <div className="relative max-w-3xl mx-auto px-6 sm:px-10 h-8">
         {/* the path */}
         <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-line" />
 
@@ -111,18 +111,19 @@ const RewardSignal = () => {
           </span>
         ))}
 
-        {/* the return, once the episode ends */}
+        {/* the return, once the episode ends — width-capped so it can't
+            spill past the viewport edge on a narrow phone */}
         <div
-          className="reward-message absolute left-1/2 text-center"
+          className="reward-message absolute left-1/2 text-center w-[min(85vw,320px)]"
           style={{ top: "34px", animationDelay: `${MESSAGE_DELAY}s` }}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-inkmuted whitespace-nowrap">
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
             reward signal received
           </p>
-          <p className="mt-1.5 font-display italic text-ink text-lg whitespace-nowrap">
+          <p className="mt-1.5 font-display italic text-ink text-base sm:text-lg">
             G<sub>t</sub> = R<sub>t+1</sub> + R<sub>t+2</sub> + &hellip;
           </p>
-          <p className="mt-1.5 text-blush text-xs tracking-[0.35em] whitespace-nowrap">
+          <p className="mt-1.5 text-blush text-xs tracking-[0.3em]">
             悟 · 修 · 成
           </p>
         </div>

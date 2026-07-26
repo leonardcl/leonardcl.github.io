@@ -143,7 +143,7 @@ export default function PixelCam() {
     "font-mono text-xs px-3 py-2 border border-line text-ink hover:border-accent hover:text-accent transition-colors bg-bone";
 
   return (
-    <div className="min-h-screen bg-bone text-ink font-sans">
+    <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         <div className="mb-10">

@@ -76,7 +76,7 @@ function Blog() {
   }, []);
 
   return (
-    <div className="App bg-bone text-ink font-sans min-h-screen flex flex-col overflow-x-hidden">
+    <div className="App bg-bone text-ink font-sans min-h-screen min-h-dvh flex flex-col overflow-x-hidden">
       <Nav />
 
       <main className="relative w-full flex-1">

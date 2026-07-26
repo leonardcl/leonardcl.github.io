@@ -20,7 +20,7 @@ const Hero = () => {
     <section
       id="home"
       ref={sectionRef}
-      className="relative min-h-screen flex flex-col justify-center overflow-hidden"
+      className="relative min-h-screen min-h-dvh flex flex-col justify-center overflow-hidden"
       onMouseMove={handleMouseMove}
     >
       {/* Ambient drifting color */}

@@ -4,7 +4,7 @@ import FooterV2 from './components/v2/FooterV2';
 
 export default function NotFoundPage() {
     return (
-        <div className="min-h-screen bg-bone text-ink font-sans flex flex-col">
+        <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans flex flex-col">
             <Nav />
             <main className="relative flex-1 flex items-center justify-center overflow-hidden">
                 <div className="blob w-[420px] h-[420px] -top-24 -right-28 bg-blush/10" />
