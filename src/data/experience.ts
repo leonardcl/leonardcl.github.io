@@ -49,7 +49,7 @@ export const career: ExperienceItem[] = [
 export const education: ExperienceItem[] = [
   {
     dates: "2022 — 2025",
-    title: "M.Eng, Computer Engineering",
+    title: "M.Sc, Computer Engineering",
     org: "Dongseo University",
     points: [
       "Specialized in reinforcement learning, computer vision, and LLMs.",
@@ -57,7 +57,7 @@ export const education: ExperienceItem[] = [
   },
   {
     dates: "2018 — 2022",
-    title: "B.Eng, Electrical Engineering",
+    title: "S.T., Electrical Engineering",
     org: "Petra Christian University",
     points: [
       "Robotics, electronics, computer vision. Thesis: emotion monitoring for online classes.",
