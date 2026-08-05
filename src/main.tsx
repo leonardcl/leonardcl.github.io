@@ -10,6 +10,9 @@ import Blessed from './components/Blessed.tsx';
 import GradientDescentTool from './components/GradientDescentTool.tsx';
 import Boids from './components/Boids.tsx';
 import PixelCam from './components/PixelCam.tsx';
+import FogOfWar from './components/FogOfWar.tsx';
+import TicTacToeRL from './components/TicTacToeRL.tsx';
+import RagPipeline from './components/RagPipeline.tsx';
 import RewardSignal from './components/v2/RewardSignal.tsx';
 import './index.css';
 
@@ -42,6 +45,18 @@ const router = createHashRouter([
   {
     path: "/pixel-cam",
     element: <PixelCam />,
+  },
+  {
+    path: "/fog-of-war",
+    element: <FogOfWar />,
+  },
+  {
+    path: "/tictactoe-rl",
+    element: <TicTacToeRL />,
+  },
+  {
+    path: "/rag-pipeline",
+    element: <RagPipeline />,
   },
 ]);
 

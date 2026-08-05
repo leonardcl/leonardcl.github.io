@@ -106,6 +106,24 @@ const FooterV2 = () => (
             playground
           </span>
           <Link
+            to="/fog-of-war"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            breaking the fog →
+          </Link>
+          <Link
+            to="/tictactoe-rl"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            teach it to play →
+          </Link>
+          <Link
+            to="/rag-pipeline"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            rag pipeline →
+          </Link>
+          <Link
             to="/gradient-descent"
             className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
