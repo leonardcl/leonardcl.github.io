@@ -32,6 +32,44 @@ function winnerOf(b: string): Player | "D" | null {
   return b.includes(".") ? null : "D";
 }
 
+/** Which three squares won it — for drawing the strike-through. */
+function winningLine(b: string): number[] | null {
+  for (const line of LINES) {
+    const [a, c, d] = line;
+    if (b[a] !== "." && b[a] === b[c] && b[c] === b[d]) return line;
+  }
+  return null;
+}
+
+// Marks drawn as strokes, in the same line-art language as the site's icons.
+const XMark = () => (
+  <svg viewBox="0 0 100 100" className="w-1/2 h-1/2">
+    <line x1="18" y1="18" x2="82" y2="82" className="mark-stroke" pathLength={1} />
+    <line
+      x1="82"
+      y1="18"
+      x2="18"
+      y2="82"
+      className="mark-stroke"
+      style={{ animationDelay: "150ms" }}
+      pathLength={1}
+    />
+  </svg>
+);
+
+const OMark = () => (
+  <svg viewBox="0 0 100 100" className="w-1/2 h-1/2">
+    <circle cx="50" cy="50" r="32" className="mark-stroke" pathLength={1} />
+  </svg>
+);
+
+/**
+ * Cell centres as a fraction of the board, accounting for the 8px gaps.
+ * (Exact at 340px and within a pixel at any size the board actually renders.)
+ */
+const GAP_R = 8 / 340;
+const centerFrac = (i: number) => (i * (1 + GAP_R)) / 3 + (1 - 2 * GAP_R) / 6;
+
 const legal = (b: string) => {
   const out: number[] = [];
   for (let i = 0; i < 9; i++) if (b[i] === ".") out.push(i);
@@ -134,6 +172,28 @@ export default function TicTacToeRL() {
   const [training, setTraining] = useState(false);
   const [showQ, setShowQ] = useState(false);
   const [thinking, setThinking] = useState(false);
+  const [winLine, setWinLine] = useState<number[] | null>(null);
+  const [gameId, setGameId] = useState(0); // bumping this replays the entrance
+
+  // The self-play counter rolls up rather than snapping, so training reads
+  // as something that actually happened.
+  const [shownEpisodes, setShownEpisodes] = useState(0);
+  const shownRef = useRef(0);
+  useEffect(() => {
+    const from = shownRef.current;
+    if (from === episodes) return;
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - t0) / 700);
+      const v = Math.round(from + (episodes - from) * (1 - Math.pow(1 - p, 3)));
+      shownRef.current = v;
+      setShownEpisodes(v);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [episodes]);
 
   // You are X and move first; the agent answers as O.
   const agentMove = (b: string) => {
@@ -146,6 +206,7 @@ export default function TicTacToeRL() {
   const settle = (b: string) => {
     const w = winnerOf(b);
     if (!w) return false;
+    setWinLine(winningLine(b));
     if (w === "X") {
       setStatus("won");
       setRecord((r) => ({ ...r, w: r.w + 1 }));
@@ -190,12 +251,16 @@ export default function TicTacToeRL() {
     setBoard(EMPTY);
     setStatus("playing");
     setThinking(false);
+    setWinLine(null);
+    setGameId((g) => g + 1);
   };
 
   const resetAgent = () => {
     Q.current = new Map();
     setEpisodes(0);
     setStates(0);
+    shownRef.current = 0;
+    setShownEpisodes(0);
     setRecord({ w: 0, l: 0, d: 0 });
     newGame();
   };
@@ -231,39 +296,105 @@ export default function TicTacToeRL() {
         <div className="grid md:grid-cols-3 gap-6">
           {/* Board */}
           <div className="md:col-span-2 border border-line bg-bone p-6 sm:p-10 flex flex-col items-center">
-            <div className="grid grid-cols-3 gap-2 w-full max-w-[340px]">
-              {Array.from({ length: 9 }, (_, i) => {
-                const v = board[i];
-                const q = qRowNow && v === "." ? qRowNow[i] : undefined;
-                return (
-                  <button
-                    key={i}
-                    onClick={() => clickCell(i)}
-                    disabled={status !== "playing" || v !== "." || thinking}
-                    className="relative aspect-square border border-line bg-bone flex items-center justify-center font-display text-4xl sm:text-5xl transition-colors hover:border-accent/60 disabled:hover:border-line"
-                  >
-                    <span className={v === "X" ? "text-ink" : "text-accent"}>
-                      {v === "." ? "" : v}
-                    </span>
-                    {q !== undefined && (
-                      <span
-                        className="absolute bottom-1 right-1.5 font-mono text-[10px]"
-                        style={{ color: q >= 0 ? "#3538CD" : "#D6336C" }}
-                      >
-                        {q.toFixed(2)}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+            <div className="relative w-full max-w-[340px]">
+              <div key={gameId} className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 9 }, (_, i) => {
+                  const v = board[i];
+                  const q = qRowNow && v === "." ? qRowNow[i] : undefined;
+                  const playable = status === "playing" && v === "." && !thinking;
+                  const inWin = winLine?.includes(i) ?? false;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => clickCell(i)}
+                      disabled={!playable}
+                      style={{ animationDelay: `${i * 35}ms` }}
+                      className={`cell-in group relative aspect-square border bg-bone flex items-center justify-center transition-all duration-200
+                        ${inWin ? "win-cell border-accent/50" : "border-line"}
+                        ${playable ? "hover:border-accent/60 active:scale-[0.97]" : ""}`}
+                    >
+                      {v === "X" && (
+                        <span className="text-ink w-full h-full flex items-center justify-center">
+                          <XMark />
+                        </span>
+                      )}
+                      {v === "O" && (
+                        <span className="text-accent w-full h-full flex items-center justify-center">
+                          <OMark />
+                        </span>
+                      )}
+                      {/* a ghost of your mark, previewing the square */}
+                      {playable && (
+                        <span className="absolute inset-0 flex items-center justify-center text-ink opacity-0 group-hover:opacity-[0.16] transition-opacity duration-200 pointer-events-none">
+                          <svg viewBox="0 0 100 100" className="w-1/2 h-1/2">
+                            <line x1="18" y1="18" x2="82" y2="82" stroke="currentColor" strokeWidth={7} strokeLinecap="round" />
+                            <line x1="82" y1="18" x2="18" y2="82" stroke="currentColor" strokeWidth={7} strokeLinecap="round" />
+                          </svg>
+                        </span>
+                      )}
+                      {q !== undefined && (
+                        <span
+                          className="absolute bottom-1 right-1.5 font-mono text-[10px] transition-colors"
+                          style={{ color: q >= 0 ? "#3538CD" : "#D6336C" }}
+                        >
+                          {q.toFixed(2)}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* strike-through, drawn across the winning three */}
+              {winLine && (
+                <svg
+                  viewBox="0 0 1 1"
+                  preserveAspectRatio="none"
+                  className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
+                >
+                  {(() => {
+                    const a = winLine[0];
+                    const c = winLine[2];
+                    const x1 = centerFrac(a % 3);
+                    const y1 = centerFrac((a / 3) | 0);
+                    const x2 = centerFrac(c % 3);
+                    const y2 = centerFrac((c / 3) | 0);
+                    // a touch of overshoot past both ends reads as a real stroke
+                    const dx = (x2 - x1) * 0.08;
+                    const dy = (y2 - y1) * 0.08;
+                    return (
+                      <line
+                        className="win-line"
+                        x1={x1 - dx}
+                        y1={y1 - dy}
+                        x2={x2 + dx}
+                        y2={y2 + dy}
+                        pathLength={1}
+                        stroke={status === "won" ? "#D6336C" : "#3538CD"}
+                        strokeWidth={0.02}
+                      />
+                    );
+                  })()}
+                </svg>
+              )}
             </div>
 
             <div className="mt-6 h-6 font-mono text-xs">
-              {status === "playing" && (
-                <span className="text-inkmuted">
-                  {thinking ? "agent is choosing…" : "your move — you are X"}
-                </span>
-              )}
+              {status === "playing" &&
+                (thinking ? (
+                  <span className="text-inkmuted inline-flex items-center gap-1">
+                    agent is choosing
+                    {[0, 1, 2].map((d) => (
+                      <span
+                        key={d}
+                        className="think-dot inline-block h-1 w-1 rounded-full bg-accent"
+                        style={{ animationDelay: `${d * 140}ms` }}
+                      />
+                    ))}
+                  </span>
+                ) : (
+                  <span className="text-inkmuted">your move — you are X</span>
+                ))}
               {status === "won" && <span className="text-blush">you win</span>}
               {status === "lost" && <span className="text-accent">agent wins</span>}
               {status === "draw" && <span className="text-inkmuted">a draw</span>}
@@ -283,7 +414,15 @@ export default function TicTacToeRL() {
             <div className="font-mono text-xs text-inkmuted space-y-1.5">
               <div className="flex justify-between">
                 <span>games self-played</span>
-                <b className="text-accent">{episodes.toLocaleString()}</b>
+                <b className="text-accent tabular-nums">
+                  {shownEpisodes.toLocaleString()}
+                </b>
+              </div>
+              {/* a scan line while the thread is busy learning */}
+              <div className="h-[2px] bg-line/70 overflow-hidden">
+                {training && (
+                  <div className="train-scan h-full w-1/4 bg-accent" />
+                )}
               </div>
               <div className="flex justify-between">
                 <span>positions known</span>
