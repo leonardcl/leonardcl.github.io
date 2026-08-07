@@ -4,24 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from './components/v2/Nav'
 import FooterV2 from './components/v2/FooterV2'
+import { posts, type Post } from './data/posts'
 import PageMeta from "./components/v2/PageMeta";
 
-// Add new posts here as you write them.
-const posts = [
-  {
-    slug: "/blog/1-rl-fundamentalconcept",
-    title:
-      "Mastering Reinforcement Learning: How Machines Learn from Rewards and Mistakes",
-    excerpt:
-      "Reinforcement Learning is the science of decision making — learning the optimal behavior in an environment to obtain maximum reward.",
-    date: "2024-12-10",
-    topic: "reinforcement learning",
-    minutes: 9,
-  },
-]
 
 /** Article card with a real 3D tilt — it leans toward your cursor. */
-const TiltCard = ({ post, index }: { post: (typeof posts)[0]; index: number }) => {
+const TiltCard = ({ post, index }: { post: Post; index: number }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
 
@@ -38,7 +26,7 @@ const TiltCard = ({ post, index }: { post: (typeof posts)[0]; index: number }) =
     <div className="tilt-wrap rise-blur" style={{ animationDelay: `${500 + index * 130}ms` }}>
       <div ref={ref} onMouseMove={onMove} onMouseLeave={onLeave}>
         <Link
-          to={post.slug}
+          to={`/blog/${post.slug}`}
           className="tilt-card group block border border-line bg-bone/60 backdrop-blur-sm p-8 sm:p-10 hover:border-accent/50 hover:shadow-xl hover:shadow-accent/5"
           style={{ transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)` }}
         >

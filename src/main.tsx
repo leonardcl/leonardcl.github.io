@@ -5,7 +5,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import Blog from './Blog.tsx';
 import NotFoundPage from './NotFoundPage.tsx';
-import RlFundamentalConcept1 from './components/markdown_blogs/1-rl-fundamentalconcept.tsx';
+import BlogPost from './components/BlogPost.tsx';
 import Blessed from './components/Blessed.tsx';
 import GradientDescentTool from './components/GradientDescentTool.tsx';
 import Boids from './components/Boids.tsx';
@@ -27,8 +27,8 @@ const router = createBrowserRouter([
     element: <Blog />,
   },
   {
-    path: "/blog/1-rl-fundamentalconcept",
-    element: <RlFundamentalConcept1 />,
+    path: "/blog/:slug",
+    element: <BlogPost />,
   },
   {
     path: "/blessed",

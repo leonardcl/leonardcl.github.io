@@ -1,0 +1,11 @@
+[
+  {
+    "slug": "1-rl-fundamentalconcept",
+    "title": "Mastering Reinforcement Learning: How Machines Learn from Rewards and Mistakes",
+    "excerpt": "Reinforcement Learning is the science of decision making — learning the optimal behavior in an environment to obtain maximum reward.",
+    "date": "2024-12-10",
+    "topic": "reinforcement learning",
+    "minutes": 9,
+    "markdown": "/1-rl-fundamental/article_rl.md"
+  }
+]

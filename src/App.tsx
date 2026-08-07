@@ -7,6 +7,7 @@ import Nav from './components/v2/Nav';
 import Hero from './components/v2/Hero';
 import About from './components/v2/About';
 import Work from './components/v2/Work';
+import PlaygroundSection from './components/v2/PlaygroundSection';
 import ExperienceTimeline from './components/v2/ExperienceTimeline';
 import PublicationsList from './components/v2/PublicationsList';
 import FooterV2 from './components/v2/FooterV2';
@@ -38,6 +39,7 @@ function App() {
       <Hero />
       <About />
       <Work />
+      <PlaygroundSection />
       <ExperienceTimeline />
       <PublicationsList />
       <FooterV2 />

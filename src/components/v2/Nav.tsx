@@ -5,6 +5,7 @@ import { site } from "../../data/site";
 const links = [
   { label: "about", to: "/#about" },
   { label: "work", to: "/#work" },
+  { label: "playground", to: "/#playground" },
   { label: "experience", to: "/#experience" },
   { label: "education", to: "/#education" },
   { label: "publications", to: "/#publications" },

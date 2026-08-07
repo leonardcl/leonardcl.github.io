@@ -17,11 +17,14 @@ const dist = join(root, "dist");
 const SITE = "https://leonardcl.com";
 const NAME = "Leonard Christopher Limanjaya";
 
+// Blog routes come straight from the same list the app uses, so publishing
+// a post never means remembering to update this file too.
+const posts = JSON.parse(readFileSync(join(root, "src/data/posts.json"), "utf8"));
+
 const ROUTES = [
   ["blog", "Writing",
    "Notes and essays on reinforcement learning, robotics, and building AI systems, by Leonard Christopher Limanjaya."],
-  ["blog/1-rl-fundamentalconcept", "Mastering Reinforcement Learning",
-   "How machines learn from rewards and mistakes — agents, environments, states, actions, and the reward function explained from scratch."],
+  ...posts.map((p) => [`blog/${p.slug}`, p.title, p.excerpt]),
   ["fog-of-war", "Breaking the Fog — POMDP Simulator",
    "An interactive POMDP: a memoryless agent races a belief-state agent through the same fogged maze. Built around my ACM TIST research on partial observability."],
   ["tictactoe-rl", "Teach It to Play — Q-Learning",
