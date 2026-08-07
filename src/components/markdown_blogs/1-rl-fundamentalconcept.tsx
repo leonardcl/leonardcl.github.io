@@ -10,6 +10,7 @@ import "katex/dist/katex.min.css";
 import style from './markdown-styles.module.css';
 import Nav from "../v2/Nav";
 import FooterV2 from "../v2/FooterV2";
+import PageMeta from "../v2/PageMeta";
 
 const RlFundamentalConcept1 = () => {
     const [markdown, setMarkdown] = useState("");
@@ -23,6 +24,7 @@ const RlFundamentalConcept1 = () => {
 
     return (
         <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+          <PageMeta title={"Mastering Reinforcement Learning"} description={"How machines learn from rewards and mistakes — agents, environments, states, actions, and the reward function explained from scratch."} path={"/blog/1-rl-fundamentalconcept"} />
             <Nav />
             <main className="max-w-3xl mx-auto px-6 sm:px-10 pt-32 pb-24">
                 <Link

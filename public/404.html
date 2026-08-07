@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>leonardcl.</title>
+    <!--
+      GitHub Pages has no server-side routing, so a direct hit on /fog-of-war
+      lands here. Encode the requested path into a query string and bounce to
+      the app, which unpacks it again in index.html and hands it to the router.
+      The visitor sees one redirect and the correct page.
+    -->
+    <script>
+      (function () {
+        var l = window.location;
+        l.replace(
+          l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
+            "/?/" +
+            l.pathname.slice(1).replace(/&/g, "~and~") +
+            (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+            l.hash
+        );
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

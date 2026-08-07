@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Nav from "./v2/Nav";
 import FooterV2 from "./v2/FooterV2";
+import PageMeta from "./v2/PageMeta";
 
 /**
  * Tabular Q-learning, trained by self-play, live in your browser.
@@ -272,6 +273,7 @@ export default function TicTacToeRL() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+      <PageMeta title={"Teach It to Play — Q-Learning"} description={"Tabular Q-learning trained by self-play in your browser. Beat it untrained, then train it and try again."} path={"/tictactoe-rl"} />
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         <div className="mb-10">

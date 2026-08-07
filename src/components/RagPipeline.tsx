@@ -4,6 +4,7 @@ import FooterV2 from "./v2/FooterV2";
 import { publications } from "../data/publications";
 import { projects } from "../data/projects";
 import { career, education } from "../data/experience";
+import PageMeta from "./v2/PageMeta";
 
 /**
  * A retrieval pipeline you can watch run, step by step — and the corpus is
@@ -204,6 +205,7 @@ export default function RagPipeline() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+      <PageMeta title={"RAG Pipeline Visualizer"} description={"Watch a retrieval-augmented generation pipeline run stage by stage: tokenize, score, retrieve, ground the answer."} path={"/rag-pipeline"} />
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         <div className="mb-10">

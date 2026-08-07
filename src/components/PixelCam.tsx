@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Nav from "./v2/Nav";
 import FooterV2 from "./v2/FooterV2";
+import PageMeta from "./v2/PageMeta";
 
 /**
  * Pixel Camera — your webcam, redrawn in the site's visual language.
@@ -144,6 +145,7 @@ export default function PixelCam() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+      <PageMeta title={"Pixel Camera"} description={"Your webcam redrawn as pixels and binary digits, entirely in the browser. Nothing is recorded or sent anywhere."} path={"/pixel-cam"} />
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         <div className="mb-10">

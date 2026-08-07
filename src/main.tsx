@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { RouterProvider, createHashRouter } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import App from './App.tsx';
 import Blog from './Blog.tsx';
@@ -16,7 +16,7 @@ import RagPipeline from './components/RagPipeline.tsx';
 import RewardSignal from './components/v2/RewardSignal.tsx';
 import './index.css';
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     path: "/*",
     element: <App />,

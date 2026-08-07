@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from './components/v2/Nav'
 import FooterV2 from './components/v2/FooterV2'
+import PageMeta from "./components/v2/PageMeta";
 
 // Add new posts here as you write them.
 const posts = [
@@ -77,6 +78,7 @@ function Blog() {
 
   return (
     <div className="App bg-bone text-ink font-sans min-h-screen min-h-dvh flex flex-col overflow-x-hidden">
+      <PageMeta title={"Writing"} description={"Notes and essays on reinforcement learning, robotics, and building AI systems."} path={"/blog"} />
       <Nav />
 
       <main className="relative w-full flex-1">

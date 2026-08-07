@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Nav from "./v2/Nav";
 import FooterV2 from "./v2/FooterV2";
+import PageMeta from "./v2/PageMeta";
 
 /**
  * Breaking the fog — a POMDP in miniature.
@@ -402,6 +403,7 @@ export default function FogOfWar() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+      <PageMeta title={"Breaking the Fog — POMDP Simulator"} description={"An interactive POMDP: a memoryless agent races a belief-state agent through the same fogged maze. Built around my ACM TIST research on partial observability."} path={"/fog-of-war"} />
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         <div className="mb-10">

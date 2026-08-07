@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Nav from "./v2/Nav";
 import FooterV2 from "./v2/FooterV2";
+import PageMeta from "./v2/PageMeta";
 
 export default function GradientDescentTool() {
   // Scroll to top when component mounts
@@ -548,6 +549,7 @@ export default function GradientDescentTool() {
 
   return (
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
+      <PageMeta title={"Gradient Descent Visualizer"} description={"Interactive gradient descent: learning rate, momentum, Nesterov and noise on quadratic, saddle and Rosenbrock surfaces."} path={"/gradient-descent"} />
       <Nav />
       <main className="max-w-site mx-auto px-6 sm:px-10 pt-32 pb-24">
         {/* Header — matches the site's section language */}

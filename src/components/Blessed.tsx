@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Nav from './v2/Nav';
 import FooterV2 from './v2/FooterV2';
+import PageMeta from "./v2/PageMeta";
 
 interface BibleVerse {
   reference: string;
@@ -323,6 +324,7 @@ const Blessed: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen min-h-dvh bg-bone flex items-center justify-center">
+        <PageMeta title={"Blessed"} description={"A random Bible verse to bless your day."} path={"/blessed"} />
         <div className="text-center">
           <span className="inline-block h-2.5 w-2.5 rotate-45 bg-blush animate-ping" />
           <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-inkmuted">

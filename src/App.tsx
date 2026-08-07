@@ -1,7 +1,7 @@
 import './App.css';
 
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 import Nav from './components/v2/Nav';
 import Hero from './components/v2/Hero';
@@ -10,29 +10,30 @@ import Work from './components/v2/Work';
 import ExperienceTimeline from './components/v2/ExperienceTimeline';
 import PublicationsList from './components/v2/PublicationsList';
 import FooterV2 from './components/v2/FooterV2';
+import PageMeta from './components/v2/PageMeta';
 
 function App() {
   const location = useLocation();
-  const navigate = useNavigate();
 
+  // With real paths, a hash is just an in-page anchor again.
   useEffect(() => {
-    if (location.hash) {
-      const sectionId = location.hash.replace("#", "");
-      navigate("/#/");
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          element.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      }, 500); // Delay to ensure navigation completes
-    }
+    if (!location.hash) return;
+    const id = location.hash.slice(1);
+    const t = window.setTimeout(() => {
+      document
+        .getElementById(id)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(t);
   }, [location]);
 
   return (
     <div className="App bg-bone text-ink font-sans">
+      <PageMeta
+        title="Engineer & Founder"
+        description="Leonard Christopher Limanjaya — robotics software engineer, AI researcher, and founder of ProjekinAja. Reinforcement learning, computer vision, LLMs and RAG, ROS2 robotics."
+        path="/"
+      />
       <Nav />
       <Hero />
       <About />
