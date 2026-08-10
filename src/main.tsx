@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import App from './App.tsx';
-import Blog from './Blog.tsx';
 import NotFoundPage from './NotFoundPage.tsx';
-import BlogPost from './components/BlogPost.tsx';
-import Blessed from './components/Blessed.tsx';
-import GradientDescentTool from './components/GradientDescentTool.tsx';
-import Boids from './components/Boids.tsx';
-import PixelCam from './components/PixelCam.tsx';
-import FogOfWar from './components/FogOfWar.tsx';
-import TicTacToeRL from './components/TicTacToeRL.tsx';
-import RagPipeline from './components/RagPipeline.tsx';
 import RewardSignal from './components/v2/RewardSignal.tsx';
+import RouteLoading from './components/v2/RouteLoading.tsx';
 import './index.css';
+
+/**
+ * The homepage stays eager — it's the landing page, and a flash of a loader
+ * there would cost more than the bytes saved. Everything else splits out:
+ * the playgrounds are self-contained, and the article route pulls in
+ * highlight.js and KaTeX, which nothing else needs and which every visitor
+ * was previously downloading just to read the front page.
+ */
+const Blog = lazy(() => import('./Blog.tsx'));
+const BlogPost = lazy(() => import('./components/BlogPost.tsx'));
+const Blessed = lazy(() => import('./components/Blessed.tsx'));
+const GradientDescentTool = lazy(() => import('./components/GradientDescentTool.tsx'));
+const Boids = lazy(() => import('./components/Boids.tsx'));
+const PixelCam = lazy(() => import('./components/PixelCam.tsx'));
+const FogOfWar = lazy(() => import('./components/FogOfWar.tsx'));
+const TicTacToeRL = lazy(() => import('./components/TicTacToeRL.tsx'));
+const RagPipeline = lazy(() => import('./components/RagPipeline.tsx'));
+
+const page = (element: React.ReactNode) => (
+  <Suspense fallback={<RouteLoading />}>{element}</Suspense>
+);
 
 const router = createBrowserRouter([
   {
@@ -24,39 +37,39 @@ const router = createBrowserRouter([
   },
   {
     path: "/blog",
-    element: <Blog />,
+    element: page(<Blog />),
   },
   {
     path: "/blog/:slug",
-    element: <BlogPost />,
+    element: page(<BlogPost />),
   },
   {
     path: "/blessed",
-    element: <Blessed />,
+    element: page(<Blessed />),
   },
   {
     path: "/gradient-descent",
-    element: <GradientDescentTool />,
+    element: page(<GradientDescentTool />),
   },
   {
     path: "/boids",
-    element: <Boids />,
+    element: page(<Boids />),
   },
   {
     path: "/pixel-cam",
-    element: <PixelCam />,
+    element: page(<PixelCam />),
   },
   {
     path: "/fog-of-war",
-    element: <FogOfWar />,
+    element: page(<FogOfWar />),
   },
   {
     path: "/tictactoe-rl",
-    element: <TicTacToeRL />,
+    element: page(<TicTacToeRL />),
   },
   {
     path: "/rag-pipeline",
-    element: <RagPipeline />,
+    element: page(<RagPipeline />),
   },
 ]);
 
