@@ -7,8 +7,8 @@ import PageMeta from "./v2/PageMeta";
  * An instrument played by moving your hands through the air.
  *
  * MediaPipe tracks 21 landmarks per hand from the webcam; those drive a
- * Web Audio synth voice each. Index, middle and ring are the notes; thumb
- * works the volume and pinky jumps an octave, so each hand keeps a way to
+ * Web Audio synth voice each. Middle, ring and pinky are the notes; thumb
+ * works the volume and index jumps an octave, so each hand keeps a way to
  * shape its sound rather than spending every finger on pitch. Hand height
  * moves the chord up a scale, sideways opens the filter.
  *
@@ -77,12 +77,12 @@ const JOINTS: [number, number, number][] = [
 // which is exactly what a distance-ratio test got wrong.
 const STRAIGHT = [148, 158, 158, 152, 145];
 
-// Index, middle and ring play notes. Thumb and pinky are controls, not
-// voices: three note-fingers give eight combinations per hand, which is
-// plenty to play with while leaving both hands something to shape sound.
-const NOTE_FINGERS = [1, 2, 3];
+// Middle, ring and pinky play notes. Thumb and index are controls, not
+// voices: three note-fingers give eight combinations per hand, while the
+// two most dexterous fingers are left free to shape the sound.
+const NOTE_FINGERS = [2, 3, 4];
 const THUMB = 0;
-const PINKY = 4;
+const INDEX = 1;
 const VOICES_PER_HAND = NOTE_FINGERS.length;
 
 const dist = (a: any, b: any) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -336,9 +336,9 @@ export default function PlayTheAir() {
         sm.d += (dist(pts[4], pts[17]) / span - sm.d) * 0.25;
         const level = Math.max(0, Math.min(1, (sm.d - 0.75) / 0.55));
 
-        // Pinky lifts the whole hand an octave — the cheapest way to widen
-        // the range without adding another note-finger.
-        const octaveUp = isExtended(pts, PINKY, sens);
+        // Index lifts the whole hand an octave — the cheapest way to widen
+        // the range without spending another note-finger on it.
+        const octaveUp = isExtended(pts, INDEX, sens);
 
         const rootMidi = 48 + KEYS.indexOf(keyName); // from C3
         const base = quantize(sm.y, scale, rootMidi, octaves); // hand height
@@ -397,7 +397,7 @@ export default function PlayTheAir() {
         next[i] = { notes: sounding, cutoff, level, open, octaveUp };
 
         // thumb and pinky get their own markers — they shape, they don't sound
-        for (const [cf, on] of [[THUMB, level > 0.05], [PINKY, octaveUp]] as [number, boolean][]) {
+        for (const [cf, on] of [[THUMB, level > 0.05], [INDEX, octaveUp]] as [number, boolean][]) {
           const cp = pts[TIP[cf]];
           ctx2d.beginPath();
           ctx2d.arc(px(cp), py(cp), 6, 0, Math.PI * 2);
@@ -457,7 +457,7 @@ export default function PlayTheAir() {
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
       <PageMeta
         title="Play the Air — Hand-Gesture Instrument"
-        description="An instrument played with hand gestures through your webcam. Index, middle and ring play notes stacked into chords, the thumb is a volume fader and the pinky jumps an octave, while hand height moves the whole chord up a scale."
+        description="An instrument played with hand gestures through your webcam. Middle, ring and pinky play notes stacked into chords, the thumb is a volume fader and the index jumps an octave, while hand height moves the whole chord up a scale."
         path="/play-the-air"
       />
       <Nav />
@@ -475,8 +475,8 @@ export default function PlayTheAir() {
           </h1>
           <p className="mt-4 max-w-2xl text-inkmuted leading-relaxed">
             Twenty-one points per hand, tracked from your webcam, wired straight
-            into a synthesiser. Index, middle and ring play notes — extend them to
-            sound, curl them to stop. Your thumb is the volume fader and your pinky
+            into a synthesiser. Middle, ring and pinky play notes — extend them to
+            sound, curl them to stop. Your thumb is the volume fader and your index
             jumps an octave, while hand height moves the whole chord up the scale.
             Nothing is recorded and nothing leaves your machine.
           </p>
@@ -597,7 +597,7 @@ export default function PlayTheAir() {
                   </span>{" "}
                   {hnd ? (
                     <span className="ml-2 inline-flex gap-1 align-middle">
-                      {["I", "M", "R"].map((f, k) => (
+                      {["M", "R", "P"].map((f, k) => (
                         <span
                           key={k}
                           className="inline-block px-1 border text-[9px] leading-[1.4]"
@@ -617,7 +617,7 @@ export default function PlayTheAir() {
                             ? { borderColor: i === 0 ? ACCENT : BLUSH, color: "#FAF9F5", background: i === 0 ? ACCENT : BLUSH }
                             : { borderColor: "#E6E4DC", color: "#6B6A64" }
                         }
-                        title="pinky — octave up"
+                        title="index — octave up"
                       >
                         8va
                       </span>
@@ -637,14 +637,14 @@ export default function PlayTheAir() {
 
             <div className="mt-5 pt-4 border-t border-line text-xs text-inkmuted space-y-1.5 leading-relaxed">
               <p>
-                <b className="text-ink">Index, middle and ring play the notes</b> —
+                <b className="text-ink">Middle, ring and pinky play the notes</b> —
                 extend one to sound it, curl it to stop. All three out is a chord;
                 a fist is silence. Eight combinations per hand.
               </p>
               <p>
                 <b className="text-ink">Thumb is the volume fader.</b> Tuck it into
                 your palm to fade out, splay it wide to play full.{" "}
-                <b className="text-ink">Pinky lifts you an octave.</b>
+                <b className="text-ink">Index lifts you an octave.</b>
               </p>
               <p>
                 <b className="text-ink">Raise your hand</b> to move the whole chord
@@ -652,8 +652,8 @@ export default function PlayTheAir() {
                 filter. A closed fist is silence.
               </p>
               <p>
-                <b className="text-ink">I M R</b> light up as those fingers play;
-                <b className="text-ink"> 8va</b> shows the pinky octave. If a
+                <b className="text-ink">M R P</b> light up as those fingers play;
+                <b className="text-ink"> 8va</b> shows the index octave. If a
                 finger won't fire, raise <b className="text-ink">sensitivity</b>;
                 if they stick on, lower it — hands and cameras genuinely differ.
               </p>
