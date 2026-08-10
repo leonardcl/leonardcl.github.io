@@ -129,10 +129,26 @@ export default function PlayTheAir() {
   const [showVideo, setShowVideo] = useState(false);
   const [spacing, setSpacing] = useState(2); // scale degrees between fingers
   const [sens, setSens] = useState(1);
+  const [echo, setEcho] = useState(0.22);
+  const [echoTime, setEchoTime] = useState(0.28);
+  const [reverb, setReverb] = useState(0.16);
+  const [drive, setDrive] = useState(0);
+  const [reso, setReso] = useState(5);
   const opts = useRef({ scaleName, keyName, wave, octaves, showVideo, spacing, sens });
   opts.current = { scaleName, keyName, wave, octaves, showVideo, spacing, sens };
 
-  const audio = useRef<{ ctx: AudioContext; master: GainNode; voices: Voice[] } | null>(null);
+  const audio = useRef<{
+    ctx: AudioContext;
+    master: GainNode;
+    voices: Voice[];
+    delay: DelayNode;
+    feedback: GainNode;
+    echoMix: GainNode;
+    reverbMix: GainNode;
+    drive: WaveShaperNode;
+    driveMix: GainNode;
+    dry: GainNode;
+  } | null>(null);
   const landmarker = useRef<any>(null);
   const raf = useRef(0);
   const smooth = useRef<{ y: number; x: number; d: number }[]>([
@@ -140,25 +156,81 @@ export default function PlayTheAir() {
     { y: 0.5, x: 0.5, d: 0.2 },
   ]);
 
+  // Effects are applied straight to the running graph, so a slider moves
+  // the sound under your hands rather than on the next note.
+  useEffect(() => {
+    const a = audio.current;
+    if (!a) return;
+    const t = a.ctx.currentTime;
+    a.echoMix.gain.setTargetAtTime(echo, t, 0.05);
+    a.delay.delayTime.setTargetAtTime(echoTime, t, 0.08);
+    a.feedback.gain.setTargetAtTime(Math.min(0.85, echo * 1.4), t, 0.05);
+    a.reverbMix.gain.setTargetAtTime(reverb, t, 0.05);
+    a.driveMix.gain.setTargetAtTime(drive, t, 0.05);
+    a.dry.gain.setTargetAtTime(1 - drive * 0.55, t, 0.05);
+    a.voices.forEach((v) => v.filter.Q.setTargetAtTime(reso, t, 0.05));
+  }, [echo, echoTime, reverb, drive, reso, running]);
+
   const buildAudio = () => {
     const Ctor = window.AudioContext || (window as any).webkitAudioContext;
     const ctx: AudioContext = new Ctor();
 
-    // A little delay keeps it from sounding bone dry.
     const master = ctx.createGain();
-    master.gain.value = 0.55; // headroom for ten voices
-    const delay = ctx.createDelay(1);
-    delay.delayTime.value = 0.28;
-    const fb = ctx.createGain();
-    fb.gain.value = 0.28;
-    const wet = ctx.createGain();
-    wet.gain.value = 0.22;
+    master.gain.value = 0.55; // headroom for several voices at once
+
+    // Drive: a soft-clip curve, blended in rather than replacing the dry
+    // signal, so it adds grit without turning everything to fuzz.
+    const driveNode = ctx.createWaveShaper();
+    const curve = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) {
+      const x = (i / 1023) * 2 - 1;
+      curve[i] = Math.tanh(x * 3);
+    }
+    driveNode.curve = curve;
+    driveNode.oversample = "2x";
+    const driveMix = ctx.createGain();
+    driveMix.gain.value = drive;
+    const dry = ctx.createGain();
+    dry.gain.value = 1 - drive * 0.55;
+
+    // Echo
+    const delay = ctx.createDelay(2);
+    delay.delayTime.value = echoTime;
+    const feedback = ctx.createGain();
+    feedback.gain.value = Math.min(0.85, echo * 1.4);
+    const echoMix = ctx.createGain();
+    echoMix.gain.value = echo;
+
+    // Reverb: a decaying noise burst as the impulse — no audio file needed,
+    // and close enough to a room for an instrument like this.
+    const reverbNode = ctx.createConvolver();
+    const len = ctx.sampleRate * 2.4;
+    const imp = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = imp.getChannelData(ch);
+      for (let i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+      }
+    }
+    reverbNode.buffer = imp;
+    const reverbMix = ctx.createGain();
+    reverbMix.gain.value = reverb;
+
+    master.connect(dry);
+    master.connect(driveNode);
+    driveNode.connect(driveMix);
+    dry.connect(ctx.destination);
+    driveMix.connect(ctx.destination);
+
     master.connect(delay);
-    delay.connect(fb);
-    fb.connect(delay);
-    delay.connect(wet);
-    wet.connect(ctx.destination);
-    master.connect(ctx.destination);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(echoMix);
+    echoMix.connect(ctx.destination);
+
+    master.connect(reverbNode);
+    reverbNode.connect(reverbMix);
+    reverbMix.connect(ctx.destination);
 
     // Two hands x five fingers, so a full chord can sound at once.
     const voices: Voice[] = Array.from({ length: 2 * VOICES_PER_HAND }, () => {
@@ -167,7 +239,7 @@ export default function PlayTheAir() {
       const gain = ctx.createGain();
       osc.type = opts.current.wave;
       filter.type = "lowpass";
-      filter.Q.value = 5;
+      filter.Q.value = reso;
       filter.frequency.value = 800;
       gain.gain.value = 0;
       osc.connect(filter);
@@ -177,7 +249,7 @@ export default function PlayTheAir() {
       return { osc, filter, gain, note: -1 };
     });
 
-    audio.current = { ctx, master, voices };
+    audio.current = { ctx, master, voices, delay, feedback, echoMix, reverbMix, drive: driveNode, driveMix, dry };
   };
 
   const start = async () => {
@@ -624,6 +696,17 @@ export default function PlayTheAir() {
               </div>
             </div>
 
+            <div className="mt-5 pt-4 border-t border-line space-y-4">
+              <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-inkmuted">
+                effects
+              </p>
+              <Knob label={`echo = ${Math.round(echo * 100)}%`} min={0} max={0.6} step={0.02} value={echo} setValue={setEcho} />
+              <Knob label={`echo time = ${echoTime.toFixed(2)}s`} min={0.06} max={0.8} step={0.02} value={echoTime} setValue={setEchoTime} />
+              <Knob label={`reverb = ${Math.round(reverb * 100)}%`} min={0} max={0.7} step={0.02} value={reverb} setValue={setReverb} />
+              <Knob label={`drive = ${Math.round(drive * 100)}%`} min={0} max={1} step={0.02} value={drive} setValue={setDrive} />
+              <Knob label={`resonance = ${reso.toFixed(1)}`} min={0.5} max={18} step={0.5} value={reso} setValue={setReso} />
+            </div>
+
             {/* live readout */}
             <div className="mt-5 pt-4 border-t border-line space-y-2">
               {hands.map((hnd, i) => (
@@ -699,6 +782,41 @@ export default function PlayTheAir() {
         </div>
       </main>
       <FooterV2 />
+    </div>
+  );
+}
+
+function Knob({
+  label,
+  min,
+  max,
+  step,
+  value,
+  setValue,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  setValue: (v: number) => void;
+}) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div>
+      <div className="font-mono text-xs text-inkmuted mb-1.5">{label}</div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => setValue(Number(e.target.value))}
+        className="w-full h-[3px] rounded-full appearance-none cursor-pointer accent-[#3538CD]"
+        style={{
+          background: `linear-gradient(to right, #3538CD 0%, #3538CD ${pct}%, #E6E4DC ${pct}%, #E6E4DC 100%)`,
+        }}
+      />
     </div>
   );
 }
