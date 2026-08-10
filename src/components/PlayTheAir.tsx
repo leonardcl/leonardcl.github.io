@@ -54,12 +54,32 @@ const noteName = (m: number) => `${KEYS[((m % 12) + 12) % 12]}${Math.floor(m / 1
 
 type Voice = {
   osc: OscillatorNode;
-  sub: OscillatorNode;
   filter: BiquadFilterNode;
   gain: GainNode;
+  note: number;
 };
 
-type HandState = { note: number; cutoff: number; level: number } | null;
+type HandState = { notes: number[]; cutoff: number } | null;
+
+// fingertip and the joint below it, for deciding whether a finger is out
+const TIP = [4, 8, 12, 16, 20];
+const PIP = [2, 6, 10, 14, 18];
+const VOICES_PER_HAND = 5;
+
+const dist = (a: any, b: any) => Math.hypot(a.x - b.x, a.y - b.y);
+
+/**
+ * Is this finger extended? Compare how far the tip sits from the wrist
+ * against the knuckle below it. The thumb folds sideways rather than
+ * curling, so it gets measured against the index knuckle instead.
+ */
+function isExtended(pts: any[], f: number, sens: number) {
+  if (f === 0) {
+    const span = dist(pts[0], pts[9]) || 1e-6;
+    return dist(pts[4], pts[5]) / span > 0.55 * sens;
+  }
+  return dist(pts[0], pts[TIP[f]]) > dist(pts[0], pts[PIP[f]]) * (1.18 * sens);
+}
 
 export default function PlayTheAir() {
   useEffect(() => {
@@ -80,15 +100,17 @@ export default function PlayTheAir() {
   const [wave, setWave] = useState<OscillatorType>("triangle");
   const [octaves, setOctaves] = useState(2);
   const [showVideo, setShowVideo] = useState(false);
-  const opts = useRef({ scaleName, keyName, wave, octaves, showVideo });
-  opts.current = { scaleName, keyName, wave, octaves, showVideo };
+  const [spacing, setSpacing] = useState(2); // scale degrees between fingers
+  const [sens, setSens] = useState(1);
+  const opts = useRef({ scaleName, keyName, wave, octaves, showVideo, spacing, sens });
+  opts.current = { scaleName, keyName, wave, octaves, showVideo, spacing, sens };
 
   const audio = useRef<{ ctx: AudioContext; master: GainNode; voices: Voice[] } | null>(null);
   const landmarker = useRef<any>(null);
   const raf = useRef(0);
-  const smooth = useRef<{ y: number; x: number; p: number }[]>([
-    { y: 0.5, x: 0.5, p: 0 },
-    { y: 0.5, x: 0.5, p: 0 },
+  const smooth = useRef<{ y: number; x: number }[]>([
+    { y: 0.5, x: 0.5 },
+    { y: 0.5, x: 0.5 },
   ]);
 
   const buildAudio = () => {
@@ -97,7 +119,7 @@ export default function PlayTheAir() {
 
     // A little delay keeps it from sounding bone dry.
     const master = ctx.createGain();
-    master.gain.value = 0.9;
+    master.gain.value = 0.55; // headroom for ten voices
     const delay = ctx.createDelay(1);
     delay.delayTime.value = 0.28;
     const fb = ctx.createGain();
@@ -111,24 +133,21 @@ export default function PlayTheAir() {
     wet.connect(ctx.destination);
     master.connect(ctx.destination);
 
-    const voices: Voice[] = [0, 1].map(() => {
+    // Two hands x five fingers, so a full chord can sound at once.
+    const voices: Voice[] = Array.from({ length: 2 * VOICES_PER_HAND }, () => {
       const osc = ctx.createOscillator();
-      const sub = ctx.createOscillator();
       const filter = ctx.createBiquadFilter();
       const gain = ctx.createGain();
       osc.type = opts.current.wave;
-      sub.type = "sine";
       filter.type = "lowpass";
-      filter.Q.value = 6;
+      filter.Q.value = 5;
       filter.frequency.value = 800;
       gain.gain.value = 0;
       osc.connect(filter);
-      sub.connect(filter);
       filter.connect(gain);
       gain.connect(master);
       osc.start();
-      sub.start();
-      return { osc, sub, filter, gain };
+      return { osc, filter, gain, note: -1 };
     });
 
     audio.current = { ctx, master, voices };
@@ -204,7 +223,7 @@ export default function PlayTheAir() {
     let last = -1;
 
     const tick = () => {
-      const { scaleName, keyName, wave, octaves, showVideo } = opts.current;
+      const { scaleName, keyName, wave, octaves, showVideo, spacing, sens } = opts.current;
       const a = audio.current;
       const w = wrap.clientWidth - 2;
       const h = Math.floor((w * 3) / 4);
@@ -276,58 +295,91 @@ export default function PlayTheAir() {
         }
         ctx2d.globalAlpha = 1;
 
-        // ── gesture → control ──
+        // ── gesture → notes ──
         const palm = pts[9];
-        const pinch = Math.hypot(pts[4].x - pts[8].x, pts[4].y - pts[8].y);
-        const s = smooth.current[i];
-        // Landmarks jitter frame to frame; smoothing is what makes it
-        // feel like an instrument instead of a broken sensor.
-        s.y += ((1 - palm.y) - s.y) * 0.35;
-        s.x += ((1 - palm.x) - s.x) * 0.35;
-        s.p += (pinch - s.p) * 0.35;
+        const sm = smooth.current[i];
+        // Landmarks jitter frame to frame; smoothing is what makes this
+        // feel like an instrument rather than a broken sensor.
+        sm.y += ((1 - palm.y) - sm.y) * 0.3;
+        sm.x += ((1 - palm.x) - sm.x) * 0.3;
 
         const rootMidi = 48 + KEYS.indexOf(keyName); // from C3
-        const note = quantize(s.y, scale, rootMidi, octaves);
-        const cutoff = 180 * Math.pow(60, s.x); // exponential, 180Hz→~10kHz
-        const level = Math.max(0, Math.min(1, (s.p - 0.03) / 0.20));
+        const base = quantize(sm.y, scale, rootMidi, octaves); // hand height
+        const cutoff = 180 * Math.pow(60, sm.x); // exponential, 180Hz -> ~10kHz
+        const baseIdx = scale.indexOf(((base - rootMidi) % 12 + 12) % 12);
+        const baseOct = Math.floor((base - rootMidi) / 12);
 
-        next[i] = { note, cutoff, level };
+        const sounding: number[] = [];
+        for (let f = 0; f < VOICES_PER_HAND; f++) {
+          const vi = i * VOICES_PER_HAND + f;
+          const v = a?.voices[vi];
+          const out = isExtended(pts, f, sens);
 
-        if (a) {
-          const v = a.voices[i];
-          const t = a.ctx.currentTime;
-          if (v.osc.type !== wave) v.osc.type = wave;
-          const f = midiToFreq(note);
-          // setTargetAtTime everywhere — instant jumps click audibly.
-          v.osc.frequency.setTargetAtTime(f, t, 0.02);
-          v.sub.frequency.setTargetAtTime(f / 2, t, 0.02);
-          v.filter.frequency.setTargetAtTime(cutoff, t, 0.03);
-          v.gain.gain.setTargetAtTime(level * 0.22, t, 0.04);
+          if (out) {
+            // Each extended finger stacks another scale degree on top of
+            // the hand's base note. At spacing 2 that's thirds, so three
+            // fingers give you an actual triad.
+            const deg = (baseIdx < 0 ? 0 : baseIdx) + f * spacing;
+            const note =
+              rootMidi + (baseOct + Math.floor(deg / scale.length)) * 12 +
+              scale[deg % scale.length];
+            sounding.push(note);
+
+            if (v && a) {
+              const t = a.ctx.currentTime;
+              if (v.osc.type !== wave) v.osc.type = wave;
+              v.osc.frequency.setTargetAtTime(midiToFreq(note), t, 0.02);
+              v.filter.frequency.setTargetAtTime(cutoff, t, 0.03);
+              // quieter as more fingers open, so chords don't clip
+              v.gain.gain.setTargetAtTime(0.16, t, 0.03);
+              v.note = note;
+            }
+          } else if (v && a) {
+            v.gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.06);
+            v.note = -1;
+          }
+
+          // fingertip marker: filled when that finger is sounding
+          const p = pts[TIP[f]];
+          ctx2d.beginPath();
+          ctx2d.arc(px(p), py(p), out ? 7 : 4, 0, Math.PI * 2);
+          if (out) {
+            ctx2d.fillStyle = tone;
+            ctx2d.fill();
+          } else {
+            ctx2d.strokeStyle = tone;
+            ctx2d.lineWidth = 1.5;
+            ctx2d.stroke();
+          }
         }
 
-        // pinch readout at the fingertips
-        ctx2d.strokeStyle = tone;
-        ctx2d.setLineDash([3, 3]);
-        ctx2d.beginPath();
-        ctx2d.moveTo(px(pts[4]), py(pts[4]));
-        ctx2d.lineTo(px(pts[8]), py(pts[8]));
-        ctx2d.stroke();
-        ctx2d.setLineDash([]);
-        ctx2d.fillStyle = tone;
-        ctx2d.font = '600 13px "JetBrains Mono", monospace';
-        ctx2d.fillText(noteName(note), px(pts[9]) + 12, py(pts[9]));
+        next[i] = { notes: sounding, cutoff };
+
+        // the note names, big enough to actually read while playing
+        if (sounding.length) {
+          const label = sounding.map(noteName).join("  ");
+          ctx2d.fillStyle = tone;
+          ctx2d.font = '600 30px "Fraunces", Georgia, serif';
+          ctx2d.textAlign = i === 0 ? "left" : "right";
+          ctx2d.fillText(label, i === 0 ? 20 : w - 20, i === 0 ? 48 : 48);
+          ctx2d.textAlign = "left";
+        }
       }
 
       // silence any voice whose hand left the frame
       if (a) {
         for (let i = lms.length; i < 2; i++) {
-          a.voices[i].gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.05);
+          for (let f = 0; f < VOICES_PER_HAND; f++) {
+            const v = a.voices[i * VOICES_PER_HAND + f];
+            v.gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.05);
+            v.note = -1;
+          }
         }
       }
       if (!lms.length) {
         ctx2d.fillStyle = "#6B6A64";
         ctx2d.font = '12px "JetBrains Mono", monospace';
-        ctx2d.fillText("show your hands to the camera", 16, 26);
+        ctx2d.fillText("show your hands — extend fingers to play notes", 16, 26);
       }
 
       setHands(next);
@@ -363,9 +415,10 @@ export default function PlayTheAir() {
           </h1>
           <p className="mt-4 max-w-2xl text-inkmuted leading-relaxed">
             Twenty-one points per hand, tracked from your webcam, wired straight
-            into a synthesiser. Raise a hand to climb the scale, move it sideways
-            to open the filter, pinch to swell the note. Two hands, two voices.
-            Nothing is recorded and nothing leaves your machine.
+            into a synthesiser. Every finger is a voice: extend it to sound a note,
+            curl it to stop. Raise your hand to climb the scale, move sideways to
+            open the filter. Ten fingers, ten notes, real chords. Nothing is
+            recorded and nothing leaves your machine.
           </p>
         </div>
 
@@ -440,6 +493,30 @@ export default function PlayTheAir() {
                 />
               </div>
 
+              <div>
+                <div className="font-mono text-xs text-inkmuted mb-1.5">
+                  {`finger spacing = ${spacing} ${spacing === 1 ? "step (cluster)" : spacing === 2 ? "steps (chords)" : "steps (wide)"}`}
+                </div>
+                <input
+                  type="range" min={1} max={3} step={1} value={spacing}
+                  onChange={(e) => setSpacing(Number(e.target.value))}
+                  className="w-full h-[3px] rounded-full appearance-none cursor-pointer accent-[#3538CD]"
+                  style={{ background: `linear-gradient(to right, #3538CD 0%, #3538CD ${((spacing - 1) / 2) * 100}%, #E6E4DC ${((spacing - 1) / 2) * 100}%, #E6E4DC 100%)` }}
+                />
+              </div>
+
+              <div>
+                <div className="font-mono text-xs text-inkmuted mb-1.5">
+                  {`finger sensitivity = ${sens.toFixed(2)}`}
+                </div>
+                <input
+                  type="range" min={0.8} max={1.3} step={0.05} value={sens}
+                  onChange={(e) => setSens(Number(e.target.value))}
+                  className="w-full h-[3px] rounded-full appearance-none cursor-pointer accent-[#3538CD]"
+                  style={{ background: `linear-gradient(to right, #3538CD 0%, #3538CD ${((sens - 0.8) / 0.5) * 100}%, #E6E4DC ${((sens - 0.8) / 0.5) * 100}%, #E6E4DC 100%)` }}
+                />
+              </div>
+
               <div className="flex items-center justify-between gap-2">
                 <label className="font-mono text-xs text-inkmuted">show camera</label>
                 <input
@@ -458,10 +535,9 @@ export default function PlayTheAir() {
                   <span style={{ color: i === 0 ? ACCENT : BLUSH }}>
                     voice {i + 1}
                   </span>{" "}
-                  {hnd ? (
+                  {hnd && hnd.notes.length ? (
                     <span className="text-inkmuted">
-                      {noteName(hnd.note)} · {Math.round(hnd.cutoff)}Hz ·{" "}
-                      {Math.round(hnd.level * 100)}%
+                      {hnd.notes.map(noteName).join(" ")} · {Math.round(hnd.cutoff)}Hz
                     </span>
                   ) : (
                     <span className="text-inkmuted/50">—</span>
@@ -472,10 +548,18 @@ export default function PlayTheAir() {
 
             <div className="mt-5 pt-4 border-t border-line text-xs text-inkmuted space-y-1.5 leading-relaxed">
               <p>
-                <b className="text-ink">Up/down</b> is pitch, snapped to the scale
-                so it stays in key. <b className="text-ink">Left/right</b> opens
-                the filter. <b className="text-ink">Pinch</b> thumb to finger for
-                volume — open hand is silent.
+                <b className="text-ink">Each finger is a note.</b> Extend one to
+                sound it, curl it to stop — a filled dot means it's playing. Three
+                fingers out gives you a chord.
+              </p>
+              <p>
+                <b className="text-ink">Raise your hand</b> to move the whole chord
+                up the scale. <b className="text-ink">Move sideways</b> to open the
+                filter. A closed fist is silence.
+              </p>
+              <p>
+                If fingers trigger too eagerly (or won't trigger at all), nudge{" "}
+                <b className="text-ink">sensitivity</b> — hands and cameras differ.
               </p>
               <p>
                 Start with <b className="text-ink">major pentatonic</b>: every note
