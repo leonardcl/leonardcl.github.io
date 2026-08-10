@@ -106,6 +106,12 @@ const FooterV2 = () => (
             playground
           </span>
           <Link
+            to="/play-the-air"
+            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+          >
+            play the air →
+          </Link>
+          <Link
             to="/fog-of-war"
             className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >

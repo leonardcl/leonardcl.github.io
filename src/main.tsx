@@ -24,6 +24,7 @@ const PixelCam = lazy(() => import('./components/PixelCam.tsx'));
 const FogOfWar = lazy(() => import('./components/FogOfWar.tsx'));
 const TicTacToeRL = lazy(() => import('./components/TicTacToeRL.tsx'));
 const RagPipeline = lazy(() => import('./components/RagPipeline.tsx'));
+const PlayTheAir = lazy(() => import('./components/PlayTheAir.tsx'));
 
 const page = (element: React.ReactNode) => (
   <Suspense fallback={<RouteLoading />}>{element}</Suspense>
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
   {
     path: "/rag-pipeline",
     element: page(<RagPipeline />),
+  },
+  {
+    path: "/play-the-air",
+    element: page(<PlayTheAir />),
   },
 ]);
 

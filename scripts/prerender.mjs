@@ -25,6 +25,8 @@ const ROUTES = [
   ["blog", "Writing",
    "Notes and essays on reinforcement learning, robotics, and building AI systems, by Leonard Christopher Limanjaya."],
   ...posts.map((p) => [`blog/${p.slug}`, p.title, p.excerpt]),
+  ["play-the-air", "Play the Air — Hand-Gesture Instrument",
+   "An instrument played with hand gestures through your webcam. Hand tracking drives a Web Audio synth: height is pitch locked to a scale, sideways opens the filter, pinch controls expression."],
   ["fog-of-war", "Breaking the Fog — POMDP Simulator",
    "An interactive POMDP: a memoryless agent races a belief-state agent through the same fogged maze. Built around my ACM TIST research on partial observability."],
   ["tictactoe-rl", "Teach It to Play — Q-Learning",
