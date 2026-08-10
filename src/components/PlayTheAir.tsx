@@ -59,26 +59,45 @@ type Voice = {
   note: number;
 };
 
-type HandState = { notes: number[]; cutoff: number; level: number } | null;
+type HandState = { notes: number[]; cutoff: number; level: number; open: boolean[] } | null;
 
-// fingertip and the joint below it, for deciding whether a finger is out
 const TIP = [4, 8, 12, 16, 20];
-const PIP = [2, 6, 10, 14, 18];
+// Each finger as [base, middle joint, tip] — the angle at the middle
+// joint is what tells us whether it's straight or curled.
+const JOINTS: [number, number, number][] = [
+  [1, 2, 4],    // thumb
+  [5, 6, 8],    // index
+  [9, 10, 12],  // middle
+  [13, 14, 16], // ring
+  [17, 18, 20], // pinky
+];
+// Curled-vs-straight cutoff in degrees. The thumb never straightens as
+// far as the others, and the pinky is stubby enough to read shallower,
+// so a single threshold across all five leaves them permanently silent —
+// which is exactly what a distance-ratio test got wrong.
+const STRAIGHT = [148, 158, 158, 152, 145];
 const VOICES_PER_HAND = 5;
 
 const dist = (a: any, b: any) => Math.hypot(a.x - b.x, a.y - b.y);
 
+/** Interior angle at `b`, in degrees. */
+function angleAt(a: any, b: any, c: any) {
+  const v1x = a.x - b.x, v1y = a.y - b.y;
+  const v2x = c.x - b.x, v2y = c.y - b.y;
+  const d = Math.hypot(v1x, v1y) * Math.hypot(v2x, v2y) || 1e-6;
+  const cos = Math.max(-1, Math.min(1, (v1x * v2x + v1y * v2y) / d));
+  return (Math.acos(cos) * 180) / Math.PI;
+}
+
 /**
- * Is this finger extended? Compare how far the tip sits from the wrist
- * against the knuckle below it. The thumb folds sideways rather than
- * curling, so it gets measured against the index knuckle instead.
+ * Is this finger extended? Measured as joint angle rather than distance,
+ * because distance ratios scale with finger length — the pinky and thumb
+ * simply never cleared a threshold tuned for the index finger.
  */
 function isExtended(pts: any[], f: number, sens: number) {
-  if (f === 0) {
-    const span = dist(pts[0], pts[9]) || 1e-6;
-    return dist(pts[4], pts[5]) / span > 0.55 * sens;
-  }
-  return dist(pts[0], pts[TIP[f]]) > dist(pts[0], pts[PIP[f]]) * (1.18 * sens);
+  const [a, b, c] = JOINTS[f];
+  // sens > 1 should make triggering *easier*, so it lowers the bar.
+  return angleAt(pts[a], pts[b], pts[c]) > STRAIGHT[f] / sens;
 }
 
 export default function PlayTheAir() {
@@ -315,10 +334,12 @@ export default function PlayTheAir() {
         const baseOct = Math.floor((base - rootMidi) / 12);
 
         const sounding: number[] = [];
+        const open: boolean[] = [];
         for (let f = 0; f < VOICES_PER_HAND; f++) {
           const vi = i * VOICES_PER_HAND + f;
           const v = a?.voices[vi];
           const out = isExtended(pts, f, sens);
+          open.push(out);
 
           if (out) {
             // Each extended finger stacks another scale degree on top of
@@ -358,7 +379,7 @@ export default function PlayTheAir() {
           }
         }
 
-        next[i] = { notes: sounding, cutoff, level };
+        next[i] = { notes: sounding, cutoff, level, open };
 
         // level meter — otherwise nobody would guess distance does anything
         const barX = i === 0 ? 20 : w - 26;
@@ -547,13 +568,30 @@ export default function PlayTheAir() {
                   <span style={{ color: i === 0 ? ACCENT : BLUSH }}>
                     voice {i + 1}
                   </span>{" "}
+                  {hnd ? (
+                    <span className="ml-2 inline-flex gap-1 align-middle">
+                      {["T", "I", "M", "R", "P"].map((f, k) => (
+                        <span
+                          key={k}
+                          className="inline-block px-1 border text-[9px] leading-[1.4]"
+                          style={
+                            hnd.open[k]
+                              ? { borderColor: i === 0 ? ACCENT : BLUSH, color: "#FAF9F5", background: i === 0 ? ACCENT : BLUSH }
+                              : { borderColor: "#E6E4DC", color: "#6B6A64" }
+                          }
+                        >
+                          {f}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                   {hnd && hnd.notes.length ? (
                     <span className="text-inkmuted">
                       {hnd.notes.map(noteName).join(" ")} · {Math.round(hnd.cutoff)}Hz ·{" "}
                       {Math.round(hnd.level * 100)}%
                     </span>
                   ) : (
-                    <span className="text-inkmuted/50">—</span>
+                    <span className="text-inkmuted/50"> —</span>
                   )}
                 </div>
               ))}
@@ -571,8 +609,10 @@ export default function PlayTheAir() {
                 filter. A closed fist is silence.
               </p>
               <p>
-                If fingers trigger too eagerly (or won't trigger at all), nudge{" "}
-                <b className="text-ink">sensitivity</b> — hands and cameras differ.
+                The <b className="text-ink">T I M R P</b> boxes light up per
+                finger — thumb, index, middle, ring, pinky. If one won't fire,
+                raise <b className="text-ink">sensitivity</b>; if they all stick
+                on, lower it. Hands and cameras genuinely differ.
               </p>
               <p>
                 Start with <b className="text-ink">major pentatonic</b>: every note
