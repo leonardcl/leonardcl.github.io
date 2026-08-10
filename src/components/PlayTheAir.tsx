@@ -10,7 +10,8 @@ import PageMeta from "./v2/PageMeta";
  * Web Audio synth voice each. Middle, ring and pinky are the notes, while
  * thumb and index pinch together as a volume fader — the most controllable
  * gesture the hand has. Hand height moves the chord up a scale, sideways
- * opens the filter.
+ * opens the filter. A looper on top records the gestures rather than the
+ * audio, so layers stay in tune with whatever you play over them.
  *
  * Everything runs locally. MediaPipe loads from a CDN on demand, so this
  * page costs the rest of the site nothing.
@@ -60,6 +61,56 @@ type Voice = {
 };
 
 type HandState = { notes: number[]; cutoff: number; level: number; open: boolean[] } | null;
+
+/**
+ * The looper records *what your hands did*, not the sound they made.
+ *
+ * A frame stores scale degrees rather than frequencies, so a loop recorded
+ * in C minor follows you when you switch to G major afterwards — it stays
+ * in tune with whatever you're playing over it, which sampled audio never
+ * could. Slots are fixed (hand × finger), so a voice never jumps pitch
+ * because a different finger happened to be down that frame.
+ */
+type LoopNote = { deg: number; level: number; cutoff: number };
+type LoopFrame = { t: number; notes: (LoopNote | null)[] };
+type Layer = {
+  frames: LoopFrame[];
+  voices: Voice[];
+  muted: boolean;
+  cursor: number;
+  last: number;
+};
+type LoopMode = "idle" | "armed" | "rec";
+
+const MAX_LAYERS = 4;
+const MAX_FIRST_TAKE = 30000; // ms — a forgotten take shouldn't grow forever
+
+function createVoice(
+  ctx: AudioContext,
+  dest: AudioNode,
+  wave: OscillatorType,
+  q: number
+): Voice {
+  const osc = ctx.createOscillator();
+  const filter = ctx.createBiquadFilter();
+  const gain = ctx.createGain();
+  osc.type = wave;
+  filter.type = "lowpass";
+  filter.Q.value = q;
+  filter.frequency.value = 800;
+  gain.gain.value = 0;
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(dest);
+  osc.start();
+  return { osc, filter, gain, note: -1 };
+}
+
+/** Scale degree (counted from the root, across octaves) → MIDI note. */
+function degToNote(deg: number, scale: number[], rootMidi: number) {
+  const L = scale.length;
+  return rootMidi + Math.floor(deg / L) * 12 + scale[((deg % L) + L) % L];
+}
 
 const TIP = [4, 8, 12, 16, 20];
 // Each finger as [base, middle joint, tip] — the angle at the middle
@@ -134,8 +185,14 @@ export default function PlayTheAir() {
   const [reverb, setReverb] = useState(0.16);
   const [drive, setDrive] = useState(0);
   const [reso, setReso] = useState(5);
-  const opts = useRef({ scaleName, keyName, wave, octaves, showVideo, spacing, sens });
-  opts.current = { scaleName, keyName, wave, octaves, showVideo, spacing, sens };
+  const [loopUI, setLoopUI] = useState<{
+    mode: LoopMode;
+    layers: boolean[]; // one entry per layer: is it muted?
+    len: number;
+  }>({ mode: "idle", layers: [], len: 0 });
+
+  const opts = useRef({ scaleName, keyName, wave, octaves, showVideo, spacing, sens, reso });
+  opts.current = { scaleName, keyName, wave, octaves, showVideo, spacing, sens, reso };
 
   const audio = useRef<{
     ctx: AudioContext;
@@ -156,6 +213,144 @@ export default function PlayTheAir() {
     { y: 0.5, x: 0.5, d: 0.2 },
   ]);
 
+  const emptyLoop = () => ({
+    layers: [] as Layer[],
+    masterLen: 0, // ms; set by the first take, every later take matches it
+    loopStart: 0, // performance.now() at the top of loop zero
+    mode: "idle" as LoopMode,
+    recStart: 0,
+    recFrames: [] as LoopFrame[],
+    lastPhase: 0,
+  });
+  const loop = useRef(emptyLoop());
+
+  const syncLoopUI = () => {
+    const L = loop.current;
+    setLoopUI({ mode: L.mode, layers: L.layers.map((l) => l.muted), len: L.masterLen });
+  };
+
+  /**
+   * Pull the master down as layers stack up. Four layers plus two live hands
+   * is thirty oscillators into a gain staged for six — without this, the
+   * third overdub is where it starts to clip.
+   */
+  const setHeadroom = () => {
+    const a = audio.current;
+    if (!a) return;
+    a.master.gain.setTargetAtTime(
+      0.55 / Math.sqrt(1 + loop.current.layers.length),
+      a.ctx.currentTime,
+      0.15
+    );
+  };
+
+  /** Turn the take in progress into a layer. Silent takes are thrown away. */
+  const commitLayer = (lenMs: number) => {
+    const L = loop.current;
+    const a = audio.current;
+    const frames = L.recFrames;
+    L.recFrames = [];
+    L.mode = "idle";
+    if (!a || lenMs < 400 || !frames.some((f) => f.notes.some(Boolean))) return;
+
+    // A terminator, so the last chord releases instead of hanging until the
+    // loop comes round again — which matters for a take stopped early.
+    frames.push({ t: lenMs, notes: [] });
+
+    L.layers.push({
+      frames,
+      voices: Array.from({ length: 2 * VOICES_PER_HAND }, () =>
+        createVoice(a.ctx, a.master, opts.current.wave, opts.current.reso)
+      ),
+      muted: false,
+      cursor: 0,
+      last: 0,
+    });
+    if (L.masterLen === 0) {
+      L.masterLen = lenMs;
+      L.loopStart = L.recStart;
+      L.lastPhase = 0;
+    }
+    setHeadroom();
+  };
+
+  const disposeLayer = (l: Layer) => {
+    l.voices.forEach((v) => {
+      try {
+        v.gain.gain.value = 0;
+        v.osc.stop();
+        v.osc.disconnect();
+        v.filter.disconnect();
+        v.gain.disconnect();
+      } catch {
+        /* the context may already be closed */
+      }
+    });
+  };
+
+  const toggleRecord = () => {
+    const L = loop.current;
+    if (!audio.current) return;
+    if (L.mode === "rec") {
+      commitLayer(performance.now() - L.recStart);
+    } else if (L.mode === "armed") {
+      L.mode = "idle";
+    } else if (L.layers.length < MAX_LAYERS) {
+      if (L.masterLen === 0) {
+        // First take sets the length of everything that follows.
+        L.recStart = performance.now();
+        L.recFrames = [];
+        L.mode = "rec";
+      } else {
+        // Overdubs wait for the top of the loop, then record exactly one
+        // pass — so layers line up without anyone counting themselves in.
+        L.mode = "armed";
+      }
+    }
+    syncLoopUI();
+  };
+
+  const toggleMute = (i: number) => {
+    const l = loop.current.layers[i];
+    const a = audio.current;
+    if (!l) return;
+    l.muted = !l.muted;
+    if (l.muted && a) {
+      l.voices.forEach((v) => {
+        v.gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.05);
+        v.note = -1;
+      });
+    }
+    syncLoopUI();
+  };
+
+  const removeLayer = (i: number) => {
+    const L = loop.current;
+    const l = L.layers[i];
+    if (!l) return;
+    disposeLayer(l);
+    L.layers.splice(i, 1);
+    if (!L.layers.length && L.mode !== "rec") {
+      L.masterLen = 0; // the next take is free to set a new length
+      L.lastPhase = 0;
+      L.mode = "idle";
+    }
+    setHeadroom();
+    syncLoopUI();
+  };
+
+  const clearLoop = () => {
+    const L = loop.current;
+    L.layers.forEach(disposeLayer);
+    L.layers = [];
+    L.masterLen = 0;
+    L.lastPhase = 0;
+    L.recFrames = [];
+    L.mode = "idle";
+    setHeadroom();
+    syncLoopUI();
+  };
+
   // Effects are applied straight to the running graph, so a slider moves
   // the sound under your hands rather than on the next note.
   useEffect(() => {
@@ -169,6 +364,9 @@ export default function PlayTheAir() {
     a.driveMix.gain.setTargetAtTime(drive, t, 0.05);
     a.dry.gain.setTargetAtTime(1 - drive * 0.55, t, 0.05);
     a.voices.forEach((v) => v.filter.Q.setTargetAtTime(reso, t, 0.05));
+    loop.current.layers.forEach((l) =>
+      l.voices.forEach((v) => v.filter.Q.setTargetAtTime(reso, t, 0.05))
+    );
   }, [echo, echoTime, reverb, drive, reso, running]);
 
   const buildAudio = () => {
@@ -232,22 +430,14 @@ export default function PlayTheAir() {
     reverbNode.connect(reverbMix);
     reverbMix.connect(ctx.destination);
 
-    // Two hands x five fingers, so a full chord can sound at once.
-    const voices: Voice[] = Array.from({ length: 2 * VOICES_PER_HAND }, () => {
-      const osc = ctx.createOscillator();
-      const filter = ctx.createBiquadFilter();
-      const gain = ctx.createGain();
-      osc.type = opts.current.wave;
-      filter.type = "lowpass";
-      filter.Q.value = reso;
-      filter.frequency.value = 800;
-      gain.gain.value = 0;
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(master);
-      osc.start();
-      return { osc, filter, gain, note: -1 };
-    });
+    // Two hands x three note-fingers, so a full chord can sound at once.
+    const voices: Voice[] = Array.from({ length: 2 * VOICES_PER_HAND }, () =>
+      createVoice(ctx, master, opts.current.wave, reso)
+    );
+
+    // Loop layers own oscillators on the old context; none of them survive.
+    loop.current = emptyLoop();
+    setLoopUI({ mode: "idle", layers: [], len: 0 });
 
     audio.current = { ctx, master, voices, delay, feedback, echoMix, reverbMix, drive: driveNode, driveMix, dry };
   };
@@ -302,10 +492,15 @@ export default function PlayTheAir() {
     const a = audio.current;
     if (a) {
       a.voices.forEach((v) => v.gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.02));
+      loop.current.layers.forEach((l) =>
+        l.voices.forEach((v) => v.gain.gain.setTargetAtTime(0, a.ctx.currentTime, 0.02))
+      );
       const ctx = a.ctx;
       window.setTimeout(() => ctx.close().catch(() => {}), 120);
       audio.current = null;
     }
+    loop.current = emptyLoop();
+    setLoopUI({ mode: "idle", layers: [], len: 0 });
     setRunning(false);
     setHands([null, null]);
   };
@@ -328,6 +523,8 @@ export default function PlayTheAir() {
     const tick = () => {
       const { scaleName, keyName, wave, octaves, showVideo, spacing, sens } = opts.current;
       const a = audio.current;
+      const scale = SCALES[scaleName];
+      const rootMidi = 48 + KEYS.indexOf(keyName); // from C3
       const w = wrap.clientWidth - 2;
       const h = Math.floor((w * 3) / 4);
       if (canvas.width !== w) {
@@ -343,6 +540,59 @@ export default function PlayTheAir() {
           results = landmarker.current.detectForVideo(video, now);
         } catch {
           /* a dropped frame is not worth stopping for */
+        }
+      }
+
+      // ── looper: transport ──
+      const L = loop.current;
+      let phase = 0;
+      if (L.masterLen > 0) {
+        phase = (((now - L.loopStart) % L.masterLen) + L.masterLen) % L.masterLen;
+        if (phase < L.lastPhase) {
+          // We just crossed the top of the loop.
+          if (L.mode === "rec") {
+            commitLayer(L.masterLen); // one pass recorded — that's the take
+            syncLoopUI();
+          } else if (L.mode === "armed") {
+            L.mode = "rec";
+            L.recStart = now - phase; // count from the boundary, not from now
+            L.recFrames = [];
+            syncLoopUI();
+          }
+        }
+        L.lastPhase = phase;
+      }
+
+      // ── looper: playback ──
+      if (a && L.masterLen > 0) {
+        const t = a.ctx.currentTime;
+        for (const layer of L.layers) {
+          if (phase < layer.last) layer.cursor = 0;
+          layer.last = phase;
+          while (
+            layer.cursor + 1 < layer.frames.length &&
+            layer.frames[layer.cursor + 1].t <= phase
+          ) {
+            layer.cursor++;
+          }
+          const fr = layer.frames[layer.cursor];
+          for (let k = 0; k < layer.voices.length; k++) {
+            const v = layer.voices[k];
+            const n = layer.muted ? null : fr.notes[k];
+            if (n) {
+              // Degrees, not frequencies — so the loop transposes with you
+              // when the key or scale changes underneath it.
+              const note = degToNote(n.deg, scale, rootMidi);
+              if (v.osc.type !== wave) v.osc.type = wave;
+              v.osc.frequency.setTargetAtTime(midiToFreq(note), t, 0.02);
+              v.filter.frequency.setTargetAtTime(n.cutoff, t, 0.03);
+              v.gain.gain.setTargetAtTime(n.level * 0.2, t, 0.04);
+              v.note = note;
+            } else if (v.note !== -1) {
+              v.gain.gain.setTargetAtTime(0, t, 0.06);
+              v.note = -1;
+            }
+          }
         }
       }
 
@@ -385,7 +635,6 @@ export default function PlayTheAir() {
         }
       }
       // faint guide grid: the pitch ladder
-      const scale = SCALES[scaleName];
       const steps = scale.length * octaves;
       ctx2d.strokeStyle = "rgba(25,25,24,0.07)";
       ctx2d.lineWidth = 1;
@@ -399,6 +648,9 @@ export default function PlayTheAir() {
 
       const next: HandState[] = [null, null];
       const lms: any[] = results?.landmarks ?? [];
+      // Fixed slots (hand × finger) so a replayed voice never jumps pitch
+      // because a different finger happened to be down that frame.
+      const recNotes: (LoopNote | null)[] = new Array(2 * VOICES_PER_HAND).fill(null);
 
       for (let i = 0; i < Math.min(2, lms.length); i++) {
         const pts = lms[i];
@@ -440,10 +692,6 @@ export default function PlayTheAir() {
         sm.d += (dist(pts[4], pts[17]) / span - sm.d) * 0.25;
         const level = Math.max(0, Math.min(1, (sm.d - 0.75) / 0.55));
 
-        // Index lifts the whole hand an octave — the cheapest way to widen
-        // the range without spending another note-finger on it.
-
-        const rootMidi = 48 + KEYS.indexOf(keyName); // from C3
         const base = quantize(sm.y, scale, rootMidi, octaves); // hand height
         const cutoff = 180 * Math.pow(60, sm.x); // exponential, 180Hz -> ~10kHz
         const baseIdx = scale.indexOf(((base - rootMidi) % 12 + 12) % 12);
@@ -462,11 +710,11 @@ export default function PlayTheAir() {
             // Each extended finger stacks another scale degree on top of
             // the hand's base note. At spacing 2 that's thirds, so three
             // fingers give you an actual triad.
-            const deg = (baseIdx < 0 ? 0 : baseIdx) + n * spacing;
-            const note =
-              rootMidi + (baseOct + Math.floor(deg / scale.length)) * 12 +
-              scale[deg % scale.length];
+            const deg =
+              baseOct * scale.length + (baseIdx < 0 ? 0 : baseIdx) + n * spacing;
+            const note = degToNote(deg, scale, rootMidi);
             sounding.push(note);
+            if (L.mode === "rec") recNotes[vi] = { deg, level, cutoff };
 
             if (v && a) {
               const t = a.ctx.currentTime;
@@ -550,6 +798,44 @@ export default function PlayTheAir() {
         ctx2d.fillText("show your hands — extend fingers to play notes", 16, 26);
       }
 
+      // ── looper: capture ──
+      if (L.mode === "rec") {
+        const elapsed = now - L.recStart;
+        L.recFrames.push({ t: elapsed, notes: recNotes });
+        if (L.masterLen === 0 && elapsed > MAX_FIRST_TAKE) {
+          commitLayer(MAX_FIRST_TAKE);
+          syncLoopUI();
+        }
+      }
+
+      // ── looper: transport, drawn as a pixel row along the bottom ──
+      if (L.masterLen > 0 || L.mode === "rec") {
+        const recording = L.mode === "rec";
+        // While the first take is open there's no length to fill yet, so the
+        // row sweeps on a four-second cycle just to show it's live.
+        const p = L.masterLen > 0
+          ? phase / L.masterLen
+          : ((now - L.recStart) % 4000) / 4000;
+        const cells = 40;
+        const cw2 = w / cells;
+        const y = h - 12;
+        for (let c = 0; c < cells; c++) {
+          const on = (c + 1) / cells <= p;
+          ctx2d.fillStyle = recording
+            ? on ? "rgba(214,51,108,0.85)" : "rgba(214,51,108,0.14)"
+            : on ? "rgba(53,56,205,0.65)" : "rgba(25,25,24,0.07)";
+          ctx2d.fillRect(c * cw2 + 1, y, Math.max(1, cw2 - 2), 6);
+        }
+        ctx2d.font = '11px "JetBrains Mono", monospace';
+        ctx2d.fillStyle = recording ? BLUSH : "#6B6A64";
+        const label = recording
+          ? `● rec ${((L.masterLen > 0 ? phase : now - L.recStart) / 1000).toFixed(1)}s`
+          : L.mode === "armed"
+          ? "· armed — starts at the top"
+          : `loop ${(L.masterLen / 1000).toFixed(1)}s · ${L.layers.length} layer${L.layers.length === 1 ? "" : "s"}`;
+        ctx2d.fillText(label, 16, y - 8);
+      }
+
       setHands(next);
       raf.current = requestAnimationFrame(tick);
     };
@@ -565,7 +851,7 @@ export default function PlayTheAir() {
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
       <PageMeta
         title="Play the Air — Hand-Gesture Instrument"
-        description="An instrument played with hand gestures through your webcam. Middle, ring and pinky play notes stacked into chords while thumb and index pinch together as a volume fader, and hand height moves the whole chord up a scale."
+        description="An instrument played with hand gestures through your webcam. Middle, ring and pinky play notes stacked into chords while thumb and index pinch together as a volume fader, hand height moves the whole chord up a scale, and a four-layer looper records your gestures so loops follow you when the key changes."
         path="/play-the-air"
       />
       <Nav />
@@ -586,7 +872,8 @@ export default function PlayTheAir() {
             into a synthesiser. Middle, ring and pinky play notes — extend them to
             sound, curl them to stop. Your thumb and index pinch together as the
             volume fader, while hand height moves the whole chord up the scale.
-            Nothing is recorded and nothing leaves your machine.
+            Layer up to four loops on top of yourself. Nothing is uploaded and
+            nothing leaves your machine.
           </p>
         </div>
 
@@ -707,6 +994,83 @@ export default function PlayTheAir() {
               <Knob label={`resonance = ${reso.toFixed(1)}`} min={0.5} max={18} step={0.5} value={reso} setValue={setReso} />
             </div>
 
+            <div className="mt-5 pt-4 border-t border-line space-y-3">
+              <div className="flex items-baseline justify-between">
+                <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-inkmuted">
+                  looper
+                </p>
+                {loopUI.len > 0 && (
+                  <span className="font-mono text-[10px] text-inkmuted">
+                    {(loopUI.len / 1000).toFixed(1)}s · {loopUI.layers.length}/{MAX_LAYERS}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={toggleRecord}
+                  disabled={!running || (loopUI.mode === "idle" && loopUI.layers.length >= MAX_LAYERS)}
+                  className={
+                    "font-mono text-xs px-3 py-2 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed " +
+                    (loopUI.mode === "rec"
+                      ? "border-blush bg-blush text-bone"
+                      : loopUI.mode === "armed"
+                      ? "border-blush text-blush"
+                      : "border-line text-ink hover:border-blush hover:text-blush bg-bone")
+                  }
+                >
+                  {loopUI.mode === "rec"
+                    ? "■ stop"
+                    : loopUI.mode === "armed"
+                    ? "· armed — cancel"
+                    : loopUI.layers.length
+                    ? "● overdub"
+                    : "● record"}
+                </button>
+                {loopUI.layers.length > 0 && (
+                  <button className={btn} onClick={clearLoop}>
+                    clear all
+                  </button>
+                )}
+              </div>
+
+              {loopUI.layers.length === 0 ? (
+                <p className="font-mono text-[10px] text-inkmuted leading-relaxed">
+                  {running
+                    ? "record a phrase, stop, and it repeats. Every take after that lines up with the first."
+                    : "start the instrument to record."}
+                </p>
+              ) : (
+                <div className="space-y-1.5">
+                  {loopUI.layers.map((muted, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between gap-2 font-mono text-[11px]"
+                    >
+                      <span className={muted ? "text-inkmuted/50 line-through" : "text-ink"}>
+                        layer {i + 1}
+                      </span>
+                      <span className="flex gap-1.5">
+                        <button
+                          className="px-1.5 py-0.5 border border-line text-inkmuted hover:border-accent hover:text-accent transition-colors"
+                          onClick={() => toggleMute(i)}
+                        >
+                          {muted ? "unmute" : "mute"}
+                        </button>
+                        <button
+                          className="px-1.5 py-0.5 border border-line text-inkmuted hover:border-blush hover:text-blush transition-colors"
+                          onClick={() => removeLayer(i)}
+                          aria-label={`delete layer ${i + 1}`}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* live readout */}
             <div className="mt-5 pt-4 border-t border-line space-y-2">
               {hands.map((hnd, i) => (
@@ -765,6 +1129,14 @@ export default function PlayTheAir() {
                 <b className="text-ink">Raise your hand</b> to move the whole chord
                 up the scale. <b className="text-ink">Move sideways</b> to open the
                 filter. A closed fist is silence.
+              </p>
+              <p>
+                <b className="text-ink">The looper records your hands, not the
+                audio</b> — so a loop follows you when you change key or scale
+                afterwards, instead of clashing with it. Hit record, play,
+                hit stop; that first take sets the length. Every overdub after
+                it waits for the top of the loop and records exactly one pass,
+                so you never have to count yourself in.
               </p>
               <p>
                 <b className="text-ink">M R P</b> light up as those fingers play,
