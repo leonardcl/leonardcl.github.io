@@ -246,6 +246,10 @@ export default function PlayTheAir() {
     const canvas = canvasRef.current!;
     const wrap = wrapRef.current!;
     const ctx2d = canvas.getContext("2d")!;
+    // Downsampling target for the pixelated view — one pixel per cell,
+    // which is far cheaper than reading the full frame every tick.
+    const buf = document.createElement("canvas");
+    const bctx = buf.getContext("2d", { willReadFrequently: true })!;
     let last = -1;
 
     const tick = () => {
@@ -272,13 +276,40 @@ export default function PlayTheAir() {
       // ── paint ──
       ctx2d.fillStyle = "#FAF9F5";
       ctx2d.fillRect(0, 0, w, h);
-      if (showVideo) {
-        ctx2d.save();
-        ctx2d.globalAlpha = 0.22;
-        ctx2d.translate(w, 0);
-        ctx2d.scale(-1, 1);
-        ctx2d.drawImage(video, 0, 0, w, h);
-        ctx2d.restore();
+      if (showVideo && video.readyState >= 2) {
+        // You, rendered in the same pixel language as the rest of the site —
+        // kept deliberately faint and coarse so your hands stay the subject
+        // and the per-frame cost stays negligible.
+        const cell = 20;
+        const cols = Math.max(8, Math.floor(w / cell));
+        const rows = Math.max(6, Math.floor(h / cell));
+        buf.width = cols;
+        buf.height = rows;
+        bctx.save();
+        bctx.translate(cols, 0);
+        bctx.scale(-1, 1); // mirror, so it reads like a mirror
+        bctx.drawImage(video, 0, 0, cols, rows);
+        bctx.restore();
+        const data = bctx.getImageData(0, 0, cols, rows).data;
+        const cw = w / cols;
+        const chh = h / rows;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const idx = (r * cols + c) * 4;
+            const lum =
+              (0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2]) / 255;
+            const dark = 1 - lum;
+            if (dark < 0.28) continue; // bright areas stay bone
+            const sz = cw * (0.32 + dark * 0.5);
+            ctx2d.fillStyle =
+              dark > 0.72
+                ? "rgba(25,25,24,0.26)"
+                : dark > 0.52
+                ? "rgba(53,56,205,0.22)"
+                : "rgba(138,143,242,0.18)";
+            ctx2d.fillRect(c * cw + (cw - sz) / 2, r * chh + (chh - sz) / 2, sz, sz);
+          }
+        }
       }
       // faint guide grid: the pitch ladder
       const scale = SCALES[scaleName];
@@ -578,7 +609,7 @@ export default function PlayTheAir() {
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <label className="font-mono text-xs text-inkmuted">show camera</label>
+                <label className="font-mono text-xs text-inkmuted">pixelate me</label>
                 <input
                   type="checkbox"
                   checked={showVideo}
