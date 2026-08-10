@@ -7,10 +7,10 @@ import PageMeta from "./v2/PageMeta";
  * An instrument played by moving your hands through the air.
  *
  * MediaPipe tracks 21 landmarks per hand from the webcam; those drive a
- * Web Audio synth voice each. Height sets pitch — snapped to a scale so it
- * stays musical rather than a theremin howl — sideways position opens the
- * filter, and pinching your thumb and finger together controls expression.
- * Two hands, two independent voices.
+ * Web Audio synth voice each. Every finger is a note: extend it to sound,
+ * curl it to stop, and the hand's height moves the whole chord up a scale
+ * so it stays musical rather than a theremin howl. Sideways opens the
+ * filter; reaching toward the camera plays louder. Ten voices in total.
  *
  * Everything runs locally. MediaPipe loads from a CDN on demand, so this
  * page costs the rest of the site nothing.
@@ -59,7 +59,7 @@ type Voice = {
   note: number;
 };
 
-type HandState = { notes: number[]; cutoff: number } | null;
+type HandState = { notes: number[]; cutoff: number; level: number } | null;
 
 // fingertip and the joint below it, for deciding whether a finger is out
 const TIP = [4, 8, 12, 16, 20];
@@ -108,9 +108,9 @@ export default function PlayTheAir() {
   const audio = useRef<{ ctx: AudioContext; master: GainNode; voices: Voice[] } | null>(null);
   const landmarker = useRef<any>(null);
   const raf = useRef(0);
-  const smooth = useRef<{ y: number; x: number }[]>([
-    { y: 0.5, x: 0.5 },
-    { y: 0.5, x: 0.5 },
+  const smooth = useRef<{ y: number; x: number; d: number }[]>([
+    { y: 0.5, x: 0.5, d: 0.2 },
+    { y: 0.5, x: 0.5, d: 0.2 },
   ]);
 
   const buildAudio = () => {
@@ -302,6 +302,11 @@ export default function PlayTheAir() {
         // feel like an instrument rather than a broken sensor.
         sm.y += ((1 - palm.y) - sm.y) * 0.3;
         sm.x += ((1 - palm.x) - sm.x) * 0.3;
+        // How big the hand appears stands in for how close it is, which
+        // gives back dynamics without spending a finger on them: reach
+        // toward the camera to play louder, pull away to fade out.
+        sm.d += (dist(pts[0], pts[9]) - sm.d) * 0.25;
+        const level = Math.max(0.06, Math.min(1, (sm.d - 0.10) / 0.18));
 
         const rootMidi = 48 + KEYS.indexOf(keyName); // from C3
         const base = quantize(sm.y, scale, rootMidi, octaves); // hand height
@@ -331,7 +336,7 @@ export default function PlayTheAir() {
               v.osc.frequency.setTargetAtTime(midiToFreq(note), t, 0.02);
               v.filter.frequency.setTargetAtTime(cutoff, t, 0.03);
               // quieter as more fingers open, so chords don't clip
-              v.gain.gain.setTargetAtTime(0.16, t, 0.03);
+              v.gain.gain.setTargetAtTime(level * 0.17, t, 0.04);
               v.note = note;
             }
           } else if (v && a) {
@@ -353,7 +358,14 @@ export default function PlayTheAir() {
           }
         }
 
-        next[i] = { notes: sounding, cutoff };
+        next[i] = { notes: sounding, cutoff, level };
+
+        // level meter — otherwise nobody would guess distance does anything
+        const barX = i === 0 ? 20 : w - 26;
+        ctx2d.fillStyle = "rgba(25,25,24,0.08)";
+        ctx2d.fillRect(barX, 64, 6, 90);
+        ctx2d.fillStyle = tone;
+        ctx2d.fillRect(barX, 64 + 90 * (1 - level), 6, 90 * level);
 
         // the note names, big enough to actually read while playing
         if (sounding.length) {
@@ -397,7 +409,7 @@ export default function PlayTheAir() {
     <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans">
       <PageMeta
         title="Play the Air — Hand-Gesture Instrument"
-        description="An instrument played with hand gestures through your webcam. MediaPipe hand tracking drives a Web Audio synth: height is pitch, locked to a scale; sideways opens the filter; pinch controls expression."
+        description="An instrument played with hand gestures through your webcam. Every finger is a voice: hand tracking drives a Web Audio synth where height sets pitch locked to a scale, fingers stack chords, and reaching toward the camera plays louder."
         path="/play-the-air"
       />
       <Nav />
@@ -537,7 +549,8 @@ export default function PlayTheAir() {
                   </span>{" "}
                   {hnd && hnd.notes.length ? (
                     <span className="text-inkmuted">
-                      {hnd.notes.map(noteName).join(" ")} · {Math.round(hnd.cutoff)}Hz
+                      {hnd.notes.map(noteName).join(" ")} · {Math.round(hnd.cutoff)}Hz ·{" "}
+                      {Math.round(hnd.level * 100)}%
                     </span>
                   ) : (
                     <span className="text-inkmuted/50">—</span>
