@@ -1,4 +1,5 @@
 import { publications } from "../../data/publications";
+import { site } from "../../data/site";
 import SectionHeader from "./SectionHeader";
 import { IconBook } from "./Icons";
 import Reveal from "./Reveal";
@@ -54,6 +55,14 @@ const PublicationsList = () => {
           );
         })}
       </div>
+      <a
+        href={site.scholar}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 inline-block font-mono text-xs text-inkmuted hover:text-accent transition-colors"
+      >
+        full record on Google Scholar ↗
+      </a>
     </section>
   );
 };

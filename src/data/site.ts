@@ -13,6 +13,7 @@ export const site = {
   email: "leonardchristopher002@gmail.com",
   github: "https://github.com/leonardcl",
   linkedin: "https://id.linkedin.com/in/leonardcl",
+  scholar: "https://scholar.google.com/citations?user=EZZXGykAAAAJ",
   // Shown as a single mono line under the hero — the old "Expertise" cards, distilled.
   capabilities: [
     "machine learning",
