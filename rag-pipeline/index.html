@@ -1,14 +1,26 @@
 <!doctype html>
 <html lang="en" style="background-color: #FAF9F5;">
   <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-874T3MFZ0W"></script>
+    <!-- Google tag (gtag.js). The queue starts now; the 179 KB script itself
+         loads only after the page has loaded and gone idle, so it never
+         competes with first paint. -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'G-874T3MFZ0W');
+
+  window.addEventListener('load', function () {
+    function loadGtag() {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-874T3MFZ0W';
+      document.head.appendChild(s);
+    }
+    if ('requestIdleCallback' in window) requestIdleCallback(loadGtag, { timeout: 3000 });
+    else setTimeout(loadGtag, 1);
+  });
 </script>
     <meta charset="UTF-8" />
     <script>
@@ -36,6 +48,7 @@
     <link rel="icon" type="image/svg+xml" href="/lcl_icon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FAF9F5" />
     <meta name="description" content="Watch a retrieval-augmented generation pipeline run stage by stage: tokenize, score, retrieve, ground the answer." />
     <meta name="author" content="Leonard Christopher Limanjaya" />
     <link rel="canonical" href="https://leonardcl.com/rag-pipeline" />
@@ -59,7 +72,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:ital,wght@0,300..700;1,300..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <!-- Fonts load without blocking first paint (display=swap shows the
+         fallback until they arrive). -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:ital,wght@0,300..700;1,300..700&family=Quicksand:wght@300..700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:ital,wght@0,300..700;1,300..700&family=Quicksand:wght@300..700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&family=JetBrains+Mono:ital,wght@0,300..700;1,300..700&family=Quicksand:wght@300..700&display=swap"></noscript>
 
     <!-- Structured data: who this person is, in a form search engines parse. -->
     <script type="application/ld+json">
@@ -111,8 +128,8 @@
     }
     </script>
     <title>RAG Pipeline Visualizer — Leonard Christopher Limanjaya</title>
-    <script type="module" crossorigin src="/assets/index-CD5bbN_4.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DNbUp5BA.css">
+    <script type="module" crossorigin src="/assets/index-BZzyk-gI.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CO05HWDu.css">
   </head>
   <body style="background-color: #FAF9F5; margin: 0; padding: 0;">
     <div id="root"></div>
