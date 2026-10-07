@@ -1,11 +1,12 @@
 // ── Site-wide content. Edit freely — everything here is plain text. ──
 
 export const site = {
-  name: "Leonard Christopher",
+  name: "Leonard Christopher Limanjaya",
   shortName: "leonardcl",
   role: "engineer & founder",
-  // Hero kicker — the motto distilled. More "you" than a job title.
-  kicker: "curiosity → systems → impact",
+  // Hero kicker — a plain role line; the motto lives only in the hero quote.
+  // Non-breaking spaces keep "· South Korea" from splitting on a phone.
+  kicker: "robotics & AI engineer\u00a0· South\u00a0Korea",
   // One confident sentence. This is the first thing every visitor reads.
   tagline:
     "I build intelligent systems — robots, AI products, and the studio that ships them.",

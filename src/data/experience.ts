@@ -11,9 +11,9 @@ export const career: ExperienceItem[] = [
     title: "Robotics Software Engineer",
     org: "WaveAI",
     points: [
-      "Robotic software for autonomous navigation and object detection.",
-      "Person-following algorithms, developed and tuned on real hardware.",
-      "Hardware–software integration with the mechanical team.",
+      "Autonomous navigation and person-following for a trolley robot, driven by UWB distance and bearing and tuned on the real hardware.",
+      "Designed its control electronics in KiCad: an ESP32 board with dual UWB, CAN, RS-485 and relay outputs, taken to fab-ready Gerbers.",
+      "Traced a CCTV safety system's vest-colour errors to automatic white balance fighting a yellow floor, and corrected the colour pipeline rather than the model.",
     ],
   },
   {
@@ -21,9 +21,9 @@ export const career: ExperienceItem[] = [
     title: "AI Research Assistant",
     org: "Dongseo University",
     points: [
-      "Reinforcement learning algorithms and a RAG system; published research on both.",
-      "Knowledge-sharing on RL, LLMs, and generative models across the lab.",
-      "Designed and deployed AI systems with cross-functional teams.",
+      "First author of SIGHT, attention-guided state prediction for partially observable reinforcement learning, in ACM TIST (2026).",
+      "Co-built two retrieval-augmented systems published as journal papers: SKYRAG in IEEE Access and Pic2Plate in Sensors.",
+      "First author of a benchmark of reinforcement learning algorithms for stock trading (ICATI 2024).",
     ],
   },
   {
@@ -31,8 +31,8 @@ export const career: ExperienceItem[] = [
     title: "Programming Tutor",
     org: "IT Smart",
     points: [
-      "Python curricula from basic to advanced; machine-vision course materials.",
-      "Students from elementary to undergraduate level.",
+      "Teach Python, robotics and machine vision to students from elementary school to undergraduate, with course materials I wrote.",
+      "Built and run the school's online coding placement test.",
     ],
   },
   {
@@ -40,8 +40,8 @@ export const career: ExperienceItem[] = [
     title: "Electronics Lab Assistant",
     org: "Petra Christian University",
     points: [
+      "Ran undergraduate practicums in electronics, robotics and microcontrollers.",
       "Built and deployed IoT systems for smart devices.",
-      "Supervised practicums in electronics, robotics, and microcontrollers.",
     ],
   },
 ];

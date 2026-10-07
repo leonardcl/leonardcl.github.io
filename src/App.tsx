@@ -30,7 +30,7 @@ function App() {
   return (
     <div className="App bg-bone text-ink font-sans">
       <PageMeta
-        title="Engineer & Founder"
+        title="Robotics & AI Engineer"
         description="Leonard Christopher Limanjaya — robotics software engineer, AI researcher, and founder of ProjekinAja. Reinforcement learning, computer vision, LLMs and RAG, ROS2 robotics."
         path="/"
       />

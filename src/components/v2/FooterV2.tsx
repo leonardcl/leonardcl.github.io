@@ -66,22 +66,17 @@ const FooterV2 = () => (
           <span className="font-display text-ink font-semibold">
             leonard<span className="text-accent">cl</span><span className="text-blush">.</span>
           </span>
-          <p className="mt-2 font-mono text-[11px] text-inkmuted leading-relaxed">
-            {site.motto[0].toLowerCase()}
-            <br />
-            {site.motto[1].replace(".", "").toLowerCase()}
-          </p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
+        <div className="flex flex-col">
+          <span className="mb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
             elsewhere
           </span>
           <a
             href={site.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             github ↗
           </a>
@@ -89,76 +84,76 @@ const FooterV2 = () => (
             href={site.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             linkedin ↗
           </a>
           <Link
             to="/blog"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             blog →
           </Link>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
+        <div className="flex flex-col">
+          <span className="mb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-inkmuted">
             playground
           </span>
           <Link
             to="/play-the-air"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             play the air →
           </Link>
           <Link
             to="/fog-of-war"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             breaking the fog →
           </Link>
           <Link
             to="/tictactoe-rl"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             teach it to play →
           </Link>
           <Link
             to="/rag-pipeline"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             rag pipeline →
           </Link>
           <Link
             to="/gradient-descent"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             gradient descent tool →
           </Link>
           <Link
             to="/boids"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             boids swarm →
           </Link>
           <Link
             to="/pixel-cam"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
             pixel camera →
           </Link>
           <Link
             to="/blessed"
-            className="font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
+            className="inline-block py-1 [@media(pointer:coarse)]:py-2 font-mono text-xs text-inkmuted hover:text-accent transition-colors w-fit"
           >
-            blessed →
+            daily verse →
           </Link>
         </div>
       </div>
 
       <div className="mt-12 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <p className="font-mono text-[11px] text-inkmuted">
-          © {new Date().getFullYear()} Leonard Christopher
+          © {new Date().getFullYear()} {site.name}
         </p>
         <p
           className="font-display text-base text-ink/70 tracking-[0.35em] cursor-default hover:text-ink transition-colors"

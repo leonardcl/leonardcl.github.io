@@ -54,7 +54,7 @@ const Hero = () => {
             {site.kicker}
           </p>
 
-          <h1 className="mt-6 font-display font-medium text-ink leading-[0.95] tracking-tight text-[clamp(3rem,8vw,6.5rem)]">
+          <h1 className="mt-6 font-display font-medium text-ink leading-[0.95] tracking-tight text-[clamp(2.75rem,7.2vw,6rem)]">
             <span className="block rise-blur" style={{ animationDelay: "220ms" }}>
               Leonard
             </span>
@@ -63,6 +63,9 @@ const Hero = () => {
               style={{ animationDelay: "340ms" }}
             >
               Christopher
+            </span>
+            <span className="block rise-blur" style={{ animationDelay: "460ms" }}>
+              Limanjaya
             </span>
           </h1>
 
@@ -87,6 +90,12 @@ const Hero = () => {
             style={{ animationDelay: "720ms" }}
           >
             <a
+              href={`mailto:${site.email}`}
+              className="font-mono text-sm px-5 py-3 border border-ink bg-ink text-bone hover:bg-accent hover:border-accent transition-colors"
+            >
+              email me
+            </a>
+            <a
               href={site.github}
               target="_blank"
               rel="noopener noreferrer"
@@ -102,12 +111,6 @@ const Hero = () => {
             >
               linkedin
             </a>
-            <a
-              href={`mailto:${site.email}`}
-              className="u-link font-mono text-sm text-ink"
-            >
-              email
-            </a>
           </div>
         </div>
 
@@ -119,7 +122,7 @@ const Hero = () => {
 
       {/* Mobile: skills as a quiet static line */}
       <p
-        className="lg:hidden relative max-w-site mx-auto w-full px-6 sm:px-10 pb-10 font-mono text-[11px] text-inkmuted tracking-wide rise-blur"
+        className="lg:hidden relative max-w-site mx-auto w-full px-6 sm:px-10 pb-10 font-mono text-xs text-inkmuted tracking-wide rise-blur"
         style={{ animationDelay: "850ms" }}
       >
         {site.capabilities.join("  ·  ")}

@@ -219,7 +219,6 @@ export default function Boids() {
             </div>
             <div className="mt-5 pt-4 border-t border-line text-xs text-inkmuted space-y-1.5 leading-relaxed">
               <p>Try: separation to 0 → they collapse into a blob. Alignment to 0 → a confused crowd. All three balanced → a living flock.</p>
-              <p className="text-blush/80">turn curiosity into systems ✳</p>
             </div>
           </div>
         </div>

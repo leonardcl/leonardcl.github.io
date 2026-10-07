@@ -24,7 +24,8 @@ type Props = {
 
 export default function PageMeta({ title, description, path }: Props) {
   useEffect(() => {
-    const full = `${title} — ${NAME}`;
+    // The home page leads with the name; every other route leads with its own title.
+    const full = path === "/" ? `${NAME} — ${title}` : `${title} — ${NAME}`;
     const url = `${SITE}${path}`;
 
     document.title = full;
