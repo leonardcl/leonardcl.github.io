@@ -35,7 +35,7 @@ const Work = () => (
                 </span>
                 <h3 className="min-w-0 font-display text-2xl sm:text-3xl text-ink font-medium group-hover:text-accent group-hover:translate-x-1 transition-all duration-300">
                   {p.title}
-                  <span className="inline-block ml-2 text-accent opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                  <span className="work-arrow inline-block ml-2 text-accent transition-all duration-300">
                     ↗
                   </span>
                 </h3>
@@ -43,7 +43,7 @@ const Work = () => (
               <p className="mt-4 text-inkmuted leading-relaxed max-w-xl">
                 {p.description}
               </p>
-              <p className="mt-4 font-mono text-[11px] text-inkmuted tracking-wide">
+              <p className="mt-4 font-mono text-xs text-inkmuted tracking-wide">
                 {p.year} · {p.tags.join(" · ")}
               </p>
             </div>

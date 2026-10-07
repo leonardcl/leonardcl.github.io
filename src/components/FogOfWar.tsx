@@ -244,12 +244,15 @@ function draw(
   const cs = Math.max(5, Math.floor(cv.clientWidth / GW));
   const w = cs * GW;
   const h = cs * GH;
-  if (cv.width !== Math.floor(w * dpr) || cv.height !== Math.floor(h * dpr)) {
-    cv.width = Math.floor(w * dpr);
-    cv.height = Math.floor(h * dpr);
-    cv.style.height = `${h}px`;
+  // Scale the whole-pixel grid uniformly to the panel's exact width, so the
+  // maze fills it edge to edge and the cells stay square.
+  const k = cv.clientWidth / w;
+  if (cv.width !== Math.round(w * k * dpr) || cv.height !== Math.round(h * k * dpr)) {
+    cv.width = Math.round(w * k * dpr);
+    cv.height = Math.round(h * k * dpr);
+    cv.style.height = `${h * k}px`;
   }
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
   ctx.fillStyle = "#FAF9F5";
   ctx.fillRect(0, 0, w, h);
 

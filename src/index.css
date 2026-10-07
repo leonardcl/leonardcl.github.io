@@ -11,6 +11,37 @@ html, body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* ── Phone baseline: no grey tap flash, no font inflation, no double-tap
+   zoom delay, real press feedback where there is no hover. ── */
+html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+}
+a, button, [role=button], select, input {
+    touch-action: manipulation;
+}
+/* iOS zooms the page when a field under 16px gets focus; !important because
+   the text-xs utility on those fields is a class and would win otherwise. */
+@media (pointer: coarse) {
+    input, select, textarea {
+        font-size: 16px !important;
+    }
+}
+@media (hover: none) {
+    a:active, button:active {
+        opacity: .6;
+    }
+}
+
+/* Range sliders are a 3px gradient track; padding grows the touch area to
+   27px while background-clip keeps the drawn track at 3px. !important because
+   the gradient is an inline `background` shorthand, which resets the clip. */
+input[type="range"] {
+    box-sizing: content-box;
+    padding-block: 12px;
+    background-clip: content-box !important;
+}
+
 /* Grain overlay for atmosphere (very subtle) */
 body::after {
     content: "";
@@ -45,10 +76,12 @@ body::after {
         color 0.4s ease,
         transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.u-link:hover {
-    color: #3538CD;
-    background-size: 100% 2px, 100% 1px;
-    transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+    .u-link:hover {
+        color: #3538CD;
+        background-size: 100% 2px, 100% 1px;
+        transform: translateY(-2px);
+    }
 }
 
 /* Scroll reveal (new) */
@@ -481,9 +514,21 @@ body::after {
     transition: opacity 0.4s ease, transform 0.4s ease;
     pointer-events: none;
 }
-.work-row:hover::before {
-    opacity: 1;
-    transform: scaleX(1);
+@media (hover: hover) and (pointer: fine) {
+    .work-row:hover::before {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+    /* The ↗ stays visible on touch, so phone users can see a title is a link;
+       with a mouse it waits for hover. */
+    .work-arrow {
+        opacity: 0;
+        transform: translateX(-0.25rem);
+    }
+    .group:hover .work-arrow {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Smooth scrolling for the entire page */

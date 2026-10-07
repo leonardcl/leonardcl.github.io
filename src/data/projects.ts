@@ -1,8 +1,8 @@
-import skyragCover from "../assets/skyrag_cover.png";
-import pic2plateImage from "../assets/pic2plate_image.png";
-import rlMario from "../assets/rl_mario.png";
-import dingdongCover from "../assets/dingdongCover.png";
-import smartGarden from "../assets/smartGarden.png";
+import skyragCover from "../assets/skyrag_cover.webp";
+import pic2plateImage from "../assets/pic2plate_image.webp";
+import rlMario from "../assets/rl_mario.webp";
+import dingdongCover from "../assets/dingdongCover.webp";
+import smartGarden from "../assets/smartGarden.webp";
 
 export type Project = {
   title: string;

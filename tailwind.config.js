@@ -4,6 +4,11 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 
 export default {
     content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+    // hover: styles only on hover-capable pointers, so a tap on a phone
+    // never leaves a link stuck in its hover state.
+    future: {
+        hoverOnlyWhenSupported: true,
+    },
     theme: {
         extend: {
             colors: {

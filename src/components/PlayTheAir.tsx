@@ -878,7 +878,7 @@ export default function PlayTheAir() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          <div ref={wrapRef} className="md:col-span-2 border border-line overflow-hidden bg-bone relative">
+          <div ref={wrapRef} className={`md:col-span-2 border border-line overflow-hidden bg-bone relative ${running ? "" : "min-h-[380px]"}`}>
             <video ref={videoRef} className="hidden" playsInline muted />
             <canvas ref={canvasRef} className="block w-full" />
             {!running && (
