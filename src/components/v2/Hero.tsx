@@ -55,16 +55,16 @@ const Hero = () => {
           </p>
 
           <h1 className="mt-6 font-display font-medium text-ink leading-[0.95] tracking-tight text-[clamp(2.75rem,7.2vw,6rem)]">
-            <span className="block rise-blur" style={{ animationDelay: "220ms" }}>
+            <span className="block rise-blur-visible" style={{ animationDelay: "220ms" }}>
               Leonard
             </span>
             <span
-              className="block italic font-light rise-blur"
+              className="block italic font-light rise-blur-visible"
               style={{ animationDelay: "340ms" }}
             >
               Christopher
             </span>
-            <span className="block rise-blur" style={{ animationDelay: "460ms" }}>
+            <span className="block rise-blur-visible" style={{ animationDelay: "460ms" }}>
               Limanjaya
             </span>
           </h1>
