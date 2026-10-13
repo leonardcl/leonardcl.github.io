@@ -7,7 +7,7 @@ import Reveal from "./Reveal";
 const PublicationsList = () => {
   let lastYear = "";
   return (
-    <section id="publications" className="max-w-site mx-auto px-6 sm:px-10 py-24">
+    <section id="publications" className="max-w-site mx-auto px-6 sm:px-10 py-16 sm:py-24">
       <SectionHeader eyebrow="what have i published?" title="" italicTitle="Publications" icon={<IconBook />} />
       <div className="border-t border-line">
         {publications.map((pub) => {

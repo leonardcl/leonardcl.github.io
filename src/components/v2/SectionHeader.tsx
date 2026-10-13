@@ -11,7 +11,7 @@ type SectionHeaderProps = {
 /** Pink diamond + personal eyebrow + section symbol, then a serif title out of a mask. */
 const SectionHeader = ({ eyebrow, title, italicTitle, icon }: SectionHeaderProps) => (
   <Reveal>
-    <div className="mb-14">
+    <div className="mb-10 sm:mb-14">
       <div className="flex items-center gap-3">
         <span className="h-1.5 w-1.5 rotate-45 bg-blush" />
         <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-inkmuted">

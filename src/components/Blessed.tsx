@@ -356,8 +356,8 @@ const Blessed: React.FC = () => {
       <Nav />
       <main className="relative flex-1 flex items-center justify-center overflow-hidden">
         {/* quiet ambient color */}
-        <div className="blob w-[420px] h-[420px] -top-24 -right-28 bg-blush/10" />
-        <div className="blob w-[360px] h-[360px] bottom-0 -left-32 bg-accent/10" style={{ animationDelay: "-8s" }} />
+        <div className="blob w-[420px] h-[420px] -top-24 -right-28 text-blush/10" />
+        <div className="blob w-[360px] h-[360px] bottom-0 -left-32 text-accent/10" style={{ animationDelay: "-8s" }} />
 
         <div className="relative max-w-3xl mx-auto px-6 sm:px-10 pt-36 pb-24 text-center">
           <div className="flex items-center justify-center gap-3 rise-blur" style={{ animationDelay: "100ms" }}>

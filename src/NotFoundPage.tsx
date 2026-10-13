@@ -7,8 +7,8 @@ export default function NotFoundPage() {
         <div className="min-h-screen min-h-dvh bg-bone text-ink font-sans flex flex-col">
             <Nav />
             <main className="relative flex-1 flex items-center justify-center overflow-hidden">
-                <div className="blob w-[420px] h-[420px] -top-24 -right-28 bg-blush/10" />
-                <div className="blob w-[360px] h-[360px] bottom-0 -left-32 bg-accent/10" style={{ animationDelay: "-8s" }} />
+                <div className="blob w-[420px] h-[420px] -top-24 -right-28 text-blush/10" />
+                <div className="blob w-[360px] h-[360px] bottom-0 -left-32 text-accent/10" style={{ animationDelay: "-8s" }} />
 
                 <div className="relative text-center px-6 pt-24 pb-24">
                     <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-inkmuted">

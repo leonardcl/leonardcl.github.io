@@ -1,48 +1,46 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { site } from "../../data/site";
 import SkillConstellation from "./SkillConstellation";
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const litRef = useRef<HTMLDivElement>(null);
+  // Cursor position in [-1, 1] across the hero. A ref, not state: the
+  // constellation reads it every frame, and the spotlight is moved by
+  // writing two CSS variables, so mouse movement never re-renders React.
+  const pointer = useRef({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = sectionRef.current?.getBoundingClientRect();
     if (!rect) return;
-    // Normalized cursor position in [-1, 1] across the hero
-    setOffset({
-      x: ((e.clientX - rect.left) / rect.width - 0.5) * 2,
-      y: ((e.clientY - rect.top) / rect.height - 0.5) * 2,
-    });
+    const fx = (e.clientX - rect.left) / rect.width;
+    const fy = (e.clientY - rect.top) / rect.height;
+    pointer.current = { x: (fx - 0.5) * 2, y: (fy - 0.5) * 2 };
+    litRef.current?.style.setProperty("--mx", `${fx * 100}%`);
+    litRef.current?.style.setProperty("--my", `${fy * 100}%`);
   };
 
   return (
     <section
       id="home"
       ref={sectionRef}
-      className="relative min-h-screen min-h-dvh flex flex-col justify-center overflow-hidden"
+      className="relative min-h-screen min-h-svh flex flex-col justify-center overflow-hidden"
       onMouseMove={handleMouseMove}
     >
       {/* Ambient drifting color */}
       <div
-        className="blob w-[480px] h-[480px] -top-24 -right-24 bg-accent/10"
+        className="blob w-[480px] h-[480px] -top-24 -right-24 text-accent/10"
         style={{ animationDelay: "0s" }}
       />
       <div
-        className="blob w-[380px] h-[380px] bottom-10 -left-32 bg-blush/10"
+        className="blob w-[380px] h-[380px] bottom-10 -left-32 text-blush/10"
         style={{ animationDelay: "-9s" }}
       />
 
       {/* Engineering dot grid — faint blueprint paper */}
       <div className="hero-grid" />
       {/* Blue dots wake up inside a spotlight that follows the cursor */}
-      <div
-        className="hero-grid-lit"
-        style={{
-          WebkitMaskImage: `radial-gradient(240px circle at ${(offset.x / 2 + 0.5) * 100}% ${(offset.y / 2 + 0.5) * 100}%, black, transparent 70%)`,
-          maskImage: `radial-gradient(240px circle at ${(offset.x / 2 + 0.5) * 100}% ${(offset.y / 2 + 0.5) * 100}%, black, transparent 70%)`,
-        }}
-      />
+      <div ref={litRef} className="hero-grid-lit" />
 
       <div className="relative max-w-site mx-auto w-full px-6 sm:px-10 pt-24 pb-16 grid lg:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] gap-10 items-center">
         {/* ── Left: identity ── */}
@@ -52,6 +50,9 @@ const Hero = () => {
             style={{ animationDelay: "100ms" }}
           >
             {site.kicker}
+            <span className="hidden sm:inline"> · </span>
+            <br className="sm:hidden" />
+            {site.location}
           </p>
 
           <h1 className="mt-6 font-display font-medium text-ink leading-[0.95] tracking-tight text-[clamp(2.75rem,7.2vw,6rem)]">
@@ -91,7 +92,7 @@ const Hero = () => {
           >
             <a
               href={`mailto:${site.email}`}
-              className="font-mono text-sm px-5 py-3 border border-ink bg-ink text-bone hover:bg-accent hover:border-accent transition-colors"
+              className="font-mono text-sm px-5 py-3 border border-ink bg-ink text-bone hover:bg-accent hover:border-accent active:scale-[0.97] transition-[color,background-color,border-color,transform] duration-150 ease-out"
             >
               email me
             </a>
@@ -116,7 +117,7 @@ const Hero = () => {
 
         {/* ── Right: the skill constellation ── */}
         <div className="hidden lg:block rise-blur" style={{ animationDelay: "800ms" }}>
-          <SkillConstellation offset={offset} />
+          <SkillConstellation pointer={pointer} />
         </div>
       </div>
 

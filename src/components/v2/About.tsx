@@ -6,7 +6,7 @@ import { IconFingerprint, IconCode, IconNeural, IconRobot, IconChip } from "./Ic
 const domainIcons = [IconCode, IconNeural, IconRobot, IconChip];
 
 const About = () => (
-  <section id="about" className="max-w-site mx-auto px-6 sm:px-10 py-24">
+  <section id="about" className="max-w-site mx-auto px-6 sm:px-10 py-16 sm:py-24">
     <SectionHeader eyebrow="want to know more about me?" title="About" italicTitle="me" icon={<IconFingerprint />} />
 
     <div className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-14 lg:gap-20">
@@ -38,7 +38,7 @@ const About = () => (
                   const Icon = domainIcons[i];
                   return (
                     <span
-                      className={`w-8 h-8 shrink-0 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-[-6deg] ${
+                      className={`w-8 h-8 shrink-0 transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-[-6deg] ${
                         i % 2 === 0 ? "text-accent" : "text-blush"
                       }`}
                     >

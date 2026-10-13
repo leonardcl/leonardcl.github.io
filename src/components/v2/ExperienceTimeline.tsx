@@ -30,7 +30,7 @@ const Timeline = ({
     <div>
       {items.map((item, i) => (
         <Reveal key={item.title + item.org} delay={Math.min(i * 80, 320)}>
-          <article className="relative pl-10 pb-14 last:pb-2 group">
+          <article className="relative pl-10 pb-10 sm:pb-14 last:pb-2 group">
             {/* Dot — centered on the line */}
             <span
               className={`timeline-dot absolute left-0 top-1.5 h-3 w-3 rounded-full border-2 bg-bone ${
@@ -79,12 +79,12 @@ const Timeline = ({
 
 const ExperienceTimeline = () => (
   <>
-    <section id="experience" className="max-w-site mx-auto px-6 sm:px-10 py-24">
+    <section id="experience" className="max-w-site mx-auto px-6 sm:px-10 py-16 sm:py-24">
       <SectionHeader eyebrow="where has the journey taken me?" title="Work" italicTitle="Experience" icon={<IconRoute />} />
       <Timeline items={career} tone="accent" />
     </section>
 
-    <section id="education" className="max-w-site mx-auto px-6 sm:px-10 pb-24">
+    <section id="education" className="max-w-site mx-auto px-6 sm:px-10 pb-16 sm:pb-24">
       <SectionHeader eyebrow="where did i study?" title="" italicTitle="Education" icon={<IconCap />} />
       <Timeline items={education} tone="blush" />
     </section>

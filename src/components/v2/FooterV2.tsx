@@ -7,9 +7,9 @@ import HandGlobe from "./HandGlobe";
 const FooterV2 = () => (
   <footer id="contact" className="relative border-t border-line mt-12 overflow-hidden">
     {/* Quiet ambient color in the corner */}
-    <div className="blob w-[360px] h-[360px] -bottom-40 -right-24 bg-accent/10" />
+    <div className="blob w-[360px] h-[360px] -bottom-40 -right-24 text-accent/10" />
 
-    <div className="relative max-w-site mx-auto px-6 sm:px-10 py-24">
+    <div className="relative max-w-site mx-auto px-6 sm:px-10 py-16 sm:py-24">
       <Reveal>
         <div className="footer-cta grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] gap-10 items-center">
           <div>
@@ -27,7 +27,8 @@ const FooterV2 = () => (
               <span className="italic font-light text-blush">something.</span>
             </h2>
           </div>
-          <div className="hidden lg:block">
+          {/* On a phone the globe sits under the heading, a little smaller. */}
+          <div className="mx-auto w-full max-w-[300px] lg:max-w-none">
             <HandGlobe />
           </div>
         </div>

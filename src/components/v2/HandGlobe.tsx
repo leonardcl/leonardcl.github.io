@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { prefersReducedMotion, useFrameWhileVisible } from "./useFrameWhileVisible";
 
 /**
  * A hand from the right offers a digital globe — and the globe really rotates:
@@ -120,17 +121,12 @@ const HandGlobe = () => {
     setHandBits(bits);
   }, []);
 
-  useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      setT((prev) => prev + Math.min((now - last) / 1000, 0.05));
-      last = now;
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  // Spins only while the footer is on screen; reduced motion keeps it still.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const still = useRef(prefersReducedMotion()).current;
+  useFrameWhileVisible(rootRef, (dt) => {
+    if (!still) setT((prev) => prev + dt);
+  });
 
   const yaw = t * 0.5;
   const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
@@ -150,7 +146,7 @@ const HandGlobe = () => {
   const land = landPoints.map(project);
 
   return (
-    <div className="hand-globe relative w-full max-w-[360px] mx-auto select-none" aria-hidden>
+    <div ref={rootRef} className="hand-globe relative w-full max-w-[360px] mx-auto select-none" aria-hidden>
       <svg viewBox="0 0 320 300" className="w-full overflow-visible">
         <defs>
           <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">

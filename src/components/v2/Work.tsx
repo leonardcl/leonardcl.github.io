@@ -4,7 +4,7 @@ import { IconSpark } from "./Icons";
 import Reveal from "./Reveal";
 
 const Work = () => (
-  <section id="work" className="max-w-site mx-auto px-6 sm:px-10 py-24">
+  <section id="work" className="max-w-site mx-auto px-6 sm:px-10 py-16 sm:py-24">
     <SectionHeader eyebrow="what have i created?" title="Selected" italicTitle="Work" icon={<IconSpark />} />
 
     <div>
@@ -33,9 +33,9 @@ const Work = () => (
                 <span className="shrink-0 font-mono text-xs text-inkmuted group-hover:text-accent transition-colors">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h3 className="min-w-0 font-display text-2xl sm:text-3xl text-ink font-medium group-hover:text-accent group-hover:translate-x-1 transition-all duration-300">
+                <h3 className="min-w-0 font-display text-2xl sm:text-3xl text-ink font-medium group-hover:text-accent group-hover:translate-x-1 transition-[color,transform] duration-300">
                   {p.title}
-                  <span className="work-arrow inline-block ml-2 text-accent transition-all duration-300">
+                  <span className="work-arrow inline-block ml-2 text-accent transition-[opacity,transform] duration-300">
                     ↗
                   </span>
                 </h3>
@@ -53,7 +53,7 @@ const Work = () => (
                 src={p.image}
                 alt={p.title}
                 loading="lazy"
-                className="w-full h-40 object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.04] transition-all duration-700 ease-out"
+                className="w-full h-40 object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.04] transition-[filter,transform] duration-700 ease-out"
               />
             </div>
           </a>

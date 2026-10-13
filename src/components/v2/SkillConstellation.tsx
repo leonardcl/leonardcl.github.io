@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { prefersReducedMotion, useFrameWhileVisible } from "./useFrameWhileVisible";
 
 /**
  * The skill constellation — in 3D.
@@ -78,7 +79,12 @@ const MIN_EDGE_OPACITY = 0.25;
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) => {
+type Pointer = { x: number; y: number };
+
+/** `pointer` is the cursor position over the hero in [-1, 1], written by the
+ *  hero on mousemove; read here every frame, so moving the mouse never
+ *  re-renders the hero. */
+const SkillConstellation = ({ pointer }: { pointer: RefObject<Pointer> }) => {
   const [hovered, setHovered] = useState<string | null>(null);
   const [, setFrame] = useState(0);
   // Entrance cascade plays once; afterwards animation classes are removed.
@@ -90,10 +96,11 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
     return () => clearTimeout(timer);
   }, []);
 
+  const reduceMotion = useRef(prefersReducedMotion()).current;
   // Animation state lives in refs — updated every frame, eased, never jumps
   const anim = useRef({
     t: 0, // idle rotation angle
-    speed: 1, // eased toward target (1 idle, ~0 when inspecting)
+    speed: reduceMotion ? 0 : 1, // eased toward target (1 idle, ~0 when inspecting)
     dragYaw: 0, // extra rotation from dragging
     dragPitch: 0,
     velYaw: 0, // inertia after release
@@ -101,39 +108,42 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
     dragging: false,
     lastX: 0,
     lastY: 0,
+    ox: 0, // cursor tilt, eased toward the pointer so it trails with weight
+    oy: 0,
   });
+  const rootRef = useRef<HTMLDivElement>(null);
   const hoveredRef = useRef<string | null>(null);
   hoveredRef.current = hovered;
 
-  useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (nowMs: number) => {
-      const dt = clamp((nowMs - last) / 1000, 0, 0.05);
-      last = nowMs;
-      const a = anim.current;
+  // Runs only while the cloud is on screen: it is display:none below lg and
+  // stops once the hero has been scrolled past.
+  useFrameWhileVisible(rootRef, (dt) => {
+    const a = anim.current;
 
-      // Ease rotation speed toward its target — no sudden stops
-      const targetSpeed = hoveredRef.current || a.dragging ? 0.05 : 1;
-      a.speed += (targetSpeed - a.speed) * Math.min(1, dt * 4);
-      a.t += dt * a.speed;
+    // Ease rotation speed toward its target — no sudden stops. Reduced
+    // motion: no idle spin, but a drag still turns it.
+    const idle = reduceMotion ? 0 : 1;
+    const targetSpeed = hoveredRef.current || a.dragging ? 0.05 * idle : idle;
+    a.speed += (targetSpeed - a.speed) * Math.min(1, dt * 4);
+    a.t += dt * a.speed;
 
-      // Drag inertia: glide, then decay smoothly
-      if (!a.dragging) {
-        a.dragYaw += a.velYaw * dt;
-        a.dragPitch += a.velPitch * dt;
-        a.velYaw *= Math.exp(-dt * 2.2);
-        a.velPitch *= Math.exp(-dt * 2.2);
-        // pitch relaxes back to level so it never stays flipped
-        a.dragPitch += (0 - a.dragPitch) * Math.min(1, dt * 0.8);
-      }
+    // Drag inertia: glide, then decay smoothly
+    if (!a.dragging) {
+      a.dragYaw += a.velYaw * dt;
+      a.dragPitch += a.velPitch * dt;
+      a.velYaw *= Math.exp(-dt * 2.2);
+      a.velPitch *= Math.exp(-dt * 2.2);
+      // pitch relaxes back to level so it never stays flipped
+      a.dragPitch += (0 - a.dragPitch) * Math.min(1, dt * 0.8);
+    }
 
-      setFrame((f) => f + 1);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    const p = pointer.current ?? { x: 0, y: 0 };
+    const follow = Math.min(1, dt * 3.5);
+    a.ox += (p.x - a.ox) * follow;
+    a.oy += (p.y - a.oy) * follow;
+
+    setFrame((f) => f + 1);
+  });
 
   // ── Drag to spin ──
   const onPointerDown = (e: React.PointerEvent) => {
@@ -162,8 +172,8 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
   };
 
   const a = anim.current;
-  const yaw = a.t * 0.22 + a.dragYaw + offset.x * 0.35;
-  const pitch = clamp(-0.1 + a.dragPitch + offset.y * 0.22, -0.9, 0.9);
+  const yaw = a.t * 0.22 + a.dragYaw + a.ox * 0.35;
+  const pitch = clamp(-0.1 + a.dragPitch + a.oy * 0.22, -0.9, 0.9);
   const cosY = Math.cos(yaw), sinY = Math.sin(yaw);
   const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
 
@@ -192,9 +202,9 @@ const SkillConstellation = ({ offset }: { offset: { x: number; y: number } }) =>
 
   return (
     <div
-      className="transition-transform duration-700 ease-out will-change-transform"
+      ref={rootRef}
       style={{
-        transform: `translate(${offset.x * 8}px, ${offset.y * 8}px)`,
+        transform: `translate(${a.ox * 8}px, ${a.oy * 8}px)`,
         cursor: a.dragging ? "grabbing" : "grab",
         touchAction: "none",
       }}

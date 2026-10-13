@@ -84,12 +84,13 @@ body::after {
     }
 }
 
-/* Scroll reveal (new) */
+/* Scroll reveal: a short rise, once. 16px reads as "settling in"; the old
+   28px/0.9s made fast scrollers wait for text they had already reached. */
 .reveal {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateY(16px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.is-visible {
     opacity: 1;
@@ -149,8 +150,9 @@ body::after {
     background-image: radial-gradient(circle, rgba(53, 56, 205, 0.55) 0.5px, rgba(53, 56, 205, 0.25) 1.5px, transparent 3px);
     background-size: 26px 26px;
     filter: blur(0.6px);
-    /* only visible inside the cursor spotlight — position set inline */
-    transition: -webkit-mask-position 0.18s ease-out, mask-position 0.18s ease-out;
+    /* only visible inside the cursor spotlight; the hero writes --mx/--my */
+    -webkit-mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), black, transparent 70%);
+    mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), black, transparent 70%);
 }
 
 /* ── Soul: drifting ambient blobs ── */
@@ -159,12 +161,21 @@ body::after {
     33% { transform: translate(60px, -40px) scale(1.15); }
     66% { transform: translate(-40px, 30px) scale(0.9); }
 }
+/* Soft colour pool, tinted with text-* (currentColor). It used to be a
+   filled circle under filter: blur(90px), which the GPU re-blurs every frame
+   while it drifts. This gradient paints the same falloff once: the box is
+   grown by the blur's reach (2 sigma = 180px) and the stops follow a blurred
+   disc's profile (~full at the centre, half at the old edge). */
 .blob {
     position: absolute;
-    border-radius: 9999px;
-    filter: blur(90px);
     pointer-events: none;
     animation: blobDrift 18s ease-in-out infinite;
+}
+.blob::before {
+    content: "";
+    position: absolute;
+    inset: -180px;
+    background: radial-gradient(closest-side, currentColor 25%, color-mix(in srgb, currentColor 50%, transparent) 57%, transparent);
 }
 
 
@@ -179,15 +190,14 @@ body::after {
     transform: scaleY(1);
 }
 @keyframes dotPop {
-    0% { transform: scale(0); }
-    70% { transform: scale(1.4); }
-    100% { transform: scale(1); }
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
 }
 .reveal.is-visible .timeline-dot {
-    animation: dotPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+    animation: dotPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
 .timeline-dot {
-    transform: scale(0);
+    opacity: 0;
 }
 
 /* ── Soul: skill constellation ── */
@@ -210,16 +220,6 @@ body::after {
     transform-box: fill-box;
     animation: nodePop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
-@keyframes dotBreathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.6); }
-}
-.dot-breathe {
-    transform-origin: center;
-    transform-box: fill-box;
-    animation: dotBreathe 4s ease-in-out infinite;
-}
-
 /* ── Soul: section icons — gentle bob ── */
 @keyframes iconBob {
     0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -230,8 +230,10 @@ body::after {
     height: 100%;
     animation: iconBob 4.5s ease-in-out infinite;
 }
-.section-icon:hover svg {
-    animation-duration: 1.5s;
+@media (hover: hover) and (pointer: fine) {
+    .section-icon:hover svg {
+        animation-duration: 1.5s;
+    }
 }
 
 /* ── Soul: tic-tac-toe — marks that draw themselves ── */
@@ -283,39 +285,6 @@ body::after {
 }
 .train-scan {
     animation: trainScan 1s linear infinite;
-}
-
-/* ── Soul: pixel cells (hand) — materialize, then glitch-flicker ── */
-@keyframes pixelIn {
-    from { opacity: 0; transform: scale(0); }
-    to { opacity: 1; transform: scale(1); }
-}
-@keyframes pixelFlicker {
-    0%, 93%, 100% { opacity: 1; }
-    95% { opacity: 0.2; }
-    97% { opacity: 0.75; }
-}
-.pixel-cell {
-    transform-origin: center;
-    transform-box: fill-box;
-    animation: pixelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-               pixelFlicker 11s steps(1) infinite;
-}
-/* shimmer wave traveling across the hand (delay set per pixel by x+y) */
-@keyframes pixelWave {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.55; }
-}
-.pixel-wave {
-    animation: pixelWave 3.4s ease-in-out infinite;
-}
-/* the hand breathes gently, counter-phase to the globe */
-@keyframes handBreathe {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(5px); }
-}
-.hand-breathe {
-    animation: handBreathe 4.5s ease-in-out infinite;
 }
 
 /* ── Soul: realistic hand + pixel-dissolve effect (footer) ── */
@@ -446,22 +415,6 @@ body::after {
     animation: globeFloat 4.5s ease-in-out infinite;
     transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* dashed equator scrolls — the globe feels like it spins */
-@keyframes dashScroll {
-    to { stroke-dashoffset: -120; }
-}
-.globe-spin-line {
-    animation: dashScroll 7s linear infinite;
-}
-@keyframes twinkleSpark {
-    0%, 100% { opacity: 0.15; transform: scale(0.7); }
-    50% { opacity: 1; transform: scale(1.1); }
-}
-.twinkle {
-    transform-origin: center;
-    transform-box: fill-box;
-    animation: twinkleSpark 2.6s ease-in-out infinite;
-}
 @keyframes levRing {
     0%, 100% { transform: scaleX(0.85); opacity: 0.25; }
     50% { transform: scaleX(1.1); opacity: 0.7; }
@@ -472,8 +425,10 @@ body::after {
     animation: levRing 4.5s ease-in-out infinite;
 }
 /* Hovering the footer CTA lifts the globe higher */
-.footer-cta:hover .globe-float {
-    transform: translateY(-18px);
+@media (hover: hover) and (pointer: fine) {
+    .footer-cta:hover .globe-float {
+        transform: translateY(-18px);
+    }
 }
 
 /* ── Soul: blog page ── */
@@ -497,8 +452,10 @@ body::after {
 .tilt-card .tilt-lift {
     transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.tilt-card:hover .tilt-lift {
-    transform: translateZ(28px);
+@media (hover: hover) and (pointer: fine) {
+    .tilt-card:hover .tilt-lift {
+        transform: translateZ(28px);
+    }
 }
 
 /* ── Soul: section title mask reveal ── */
@@ -546,367 +503,6 @@ body::after {
     }
 }
 
-/* Smooth scrolling for the entire page */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Custom animations for enhanced tag effects */
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(180deg); }
-}
-
-@keyframes glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
-}
-
-@keyframes pulse-glow {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.1); }
-}
-
-/* Scroll-triggered animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes fadeInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes slideInFromBottom {
-    from {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Animation classes */
-.animate-float {
-    animation: float 6s ease-in-out infinite;
-}
-
-.animate-glow {
-    animation: glow 3s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Gradient text animation for motto */
-@keyframes gradient-x {
-    0%, 100% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-}
-
-.animate-gradient-x {
-    background-size: 200% 200%;
-    animation: gradient-x 3s ease infinite;
-}
-
-/* Code editor typing animation */
-@keyframes typing-line {
-    0% {
-        opacity: 0;
-        transform: translateY(10px);
-        filter: blur(1px);
-    }
-    50% {
-        opacity: 0.7;
-        transform: translateY(-2px);
-        filter: blur(0.3px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0px);
-        filter: blur(0px);
-    }
-}
-
-@keyframes float-code {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-        opacity: 0.4;
-    }
-    50% {
-        transform: translateY(-8px) rotate(5deg);
-        opacity: 0.6;
-    }
-}
-
-@keyframes float-code-delayed {
-    0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-        opacity: 0.4;
-    }
-    50% {
-        transform: translateY(-6px) rotate(-3deg);
-        opacity: 0.6;
-    }
-}
-
-.typing-line {
-    animation: typing-line 1s ease-out forwards;
-    opacity: 0;
-    margin-bottom: 0.5rem;
-    animation-fill-mode: forwards;
-}
-
-/* Loop the entire typing story */
-.typing-story {
-    animation: typing-loop 8s linear infinite;
-}
-
-@keyframes typing-loop {
-    0% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}
-
-/* Simple line-by-line fade-in animation */
-.typing-simple {
-    position: relative;
-    min-height: 1.2em;
-    opacity: 0;
-    animation: fade-in-line 0.5s ease-out forwards;
-}
-
-/* Sequential line timing - faster */
-.typing-simple:nth-child(1) { animation-delay: 0s; }
-.typing-simple:nth-child(2) { animation-delay: 0.8s; }
-.typing-simple:nth-child(3) { animation-delay: 1.6s; }
-.typing-simple:nth-child(4) { animation-delay: 2.4s; }
-.typing-simple:nth-child(5) { animation-delay: 3.2s; }
-.typing-simple:nth-child(6) { animation-delay: 4s; }
-.typing-simple:nth-child(7) { animation-delay: 4.8s; }
-
-@keyframes fade-in-line {
-    0% {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-float-code {
-    animation: float-code 4s ease-in-out infinite;
-}
-
-.animate-float-code-delayed {
-    animation: float-code-delayed 4s ease-in-out infinite;
-    animation-delay: 2s;
-}
-
-/* Publication section animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fadeIn {
-    animation: fadeIn 0.6s ease-out forwards;
-}
-
-/* Smooth transitions for publication sections */
-.publication-section {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.publication-section.show {
-    max-height: 24rem;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.publication-section.hide {
-    max-height: 0;
-    opacity: 0;
-    transform: translateY(-1rem);
-}
-
-/* Scroll animation classes */
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.animate-on-scroll.animate-fade-in-up {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.animate-on-scroll.animate-fade-in-left {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.animate-on-scroll.animate-fade-in-right {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.animate-on-scroll.animate-scale-in {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.animate-on-scroll.animate-slide-in-bottom {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Staggered animation delays */
-.animate-delay-100 { transition-delay: 0.1s; }
-.animate-delay-200 { transition-delay: 0.2s; }
-.animate-delay-300 { transition-delay: 0.3s; }
-.animate-delay-400 { transition-delay: 0.4s; }
-.animate-delay-500 { transition-delay: 0.5s; }
-
-/* Enhanced hover effects for interactive elements */
-.hover-lift {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-lift:hover {
-    transform: translateY(-5px);
-}
-
-.hover-glow {
-    transition: box-shadow 0.3s ease;
-}
-
-.hover-glow:hover {
-    box-shadow: 0 10px 25px rgba(6, 182, 212, 0.15);
-}
-
-/* Page Transition Animations */
-@keyframes pageSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes pageSlideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes pageFadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.99);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.page-transition-enter {
-    animation: pageFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.page-transition-slide-up {
-    animation: pageSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.page-transition-slide-down {
-    animation: pageSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Smooth section transitions */
-.section-transition {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity;
-}
-
-.section-transition.fade-out {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-}
-
-.section-transition.fade-in {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
 /* Enhanced scroll behavior */
 html {
     scroll-behavior: smooth;
@@ -937,11 +533,13 @@ html {
     scrollbar-color: #C9C7BD #FAF9F5;
 }
 
-/* Smooth transitions for all interactive elements */
-* {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+/* Phone menu: rows drop in with a 30ms stagger (set inline). Enter only;
+   it closes instantly, which is what a dismissal should feel like. */
+@keyframes menuIn {
+    from { opacity: 0; transform: translateY(-6px); }
+}
+.menu-in {
+    animation: menuIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Respect prefers-reduced-motion: keep the entrance states resolved
